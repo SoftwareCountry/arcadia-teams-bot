@@ -1,14 +1,15 @@
+using ArcadiaTeamsBot.CQRS.Queries;
+using ArcadiaTeamsBot.Infrastructure;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.Bot.Builder;
+using Microsoft.Bot.Builder.Integration.AspNet.Core;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using MediatR;
+
 namespace ArcadiaTeamsBot
 {
-    using ArcadiaTeamsBot.Infrastructure;
-
-    using Microsoft.AspNetCore.Builder;
-    using Microsoft.AspNetCore.Hosting;
-    using Microsoft.Bot.Builder;
-    using Microsoft.Bot.Builder.Integration.AspNet.Core;
-    using Microsoft.Extensions.DependencyInjection;
-    using Microsoft.Extensions.Hosting;
-
     public class Startup
     {
         public void ConfigureServices(IServiceCollection services)
@@ -16,7 +17,12 @@ namespace ArcadiaTeamsBot
             services.AddControllers();
 
             services.AddSingleton<IBotFrameworkHttpAdapter, BotAdapterWithErrorHandling>();
+
             services.AddTransient<IBot, Bot>();
+
+            services.AddMediatR(typeof(GetServiceDeskRequestTypesQuery).Assembly);
+
+            services.AddHttpClient();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
@@ -31,9 +37,11 @@ namespace ArcadiaTeamsBot
             }
 
             app.UseDefaultFiles();
+
             app.UseStaticFiles();
 
             app.UseRouting();
+
             app.UseEndpoints(endpoints => endpoints.MapControllers());
         }
     }
