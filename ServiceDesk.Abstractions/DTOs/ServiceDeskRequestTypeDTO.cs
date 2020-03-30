@@ -1,6 +1,6 @@
 ﻿namespace ServiceDesk.Abstractions.DTOs
 {
-    public class RequestTypeDTO
+    public class ServiceDeskRequestTypeDTO
     {
         public int Id { get; set; }
 
@@ -10,6 +10,6 @@
 
         public string Description { get; set; }
 
-        public RequestTypeFieldDTO[] RequestTypeFields { get; set; }
+        public ServiceDeskRequestTypeFieldDTO[] RequestTypeFields { get; set; }
     }
 }
