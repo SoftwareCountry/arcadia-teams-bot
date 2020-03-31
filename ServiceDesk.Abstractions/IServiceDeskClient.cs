@@ -1,10 +1,10 @@
-﻿using ServiceDesk.Abstractions.DTOs;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
-
-namespace ServiceDesk.Abstractions
+﻿namespace ServiceDesk.Abstractions
 {
+    using ServiceDesk.Abstractions.DTOs;
+    using System.Collections.Generic;
+    using System.Threading;
+    using System.Threading.Tasks;
+
     public interface IServiceDeskClient
     {
         Task<IEnumerable<ServiceDeskRequestTypeDTO>> GetRequestTypes(CancellationToken cancellationToken);

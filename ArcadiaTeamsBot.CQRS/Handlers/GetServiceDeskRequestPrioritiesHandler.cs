@@ -1,14 +1,13 @@
-﻿using MediatR;
-using ServiceDesk.Abstractions.DTOs;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
-using System.Text.Json;
-using ArcadiaTeamsBot.CQRS.Abstractions;
-using ServiceDesk.Abstractions;
-
-namespace ArcadiaTeamsBot.CQRS.Handlers
+﻿namespace ArcadiaTeamsBot.CQRS.Handlers
 {
+    using MediatR;
+    using ServiceDesk.Abstractions.DTOs;
+    using System.Collections.Generic;
+    using System.Threading;
+    using System.Threading.Tasks;
+    using ArcadiaTeamsBot.CQRS.Abstractions;
+    using ServiceDesk.Abstractions;
+
     internal class GetServiceDeskRequestPrioritiesHandler : IRequestHandler<GetServiceDeskRequestPrioritiesQuery, IEnumerable<ServiceDeskRequestPriorityDTO>>
     {
         public GetServiceDeskRequestPrioritiesHandler(IServiceDeskClient serviceDeskClient)

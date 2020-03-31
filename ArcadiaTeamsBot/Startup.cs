@@ -1,17 +1,17 @@
-using ArcadiaTeamsBot.Infrastructure;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.Bot.Builder;
-using Microsoft.Bot.Builder.Integration.AspNet.Core;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using MediatR;
-using ArcadiaTeamsBot.CQRS.Abstractions;
-using ServiceDesk.Abstractions;
-using ServiceDesk;
-
 namespace ArcadiaTeamsBot
 {
+    using ArcadiaTeamsBot.Infrastructure;
+    using Microsoft.AspNetCore.Builder;
+    using Microsoft.AspNetCore.Hosting;
+    using Microsoft.Bot.Builder;
+    using Microsoft.Bot.Builder.Integration.AspNet.Core;
+    using Microsoft.Extensions.DependencyInjection;
+    using Microsoft.Extensions.Hosting;
+    using MediatR;
+    using ArcadiaTeamsBot.CQRS.Abstractions;
+    using ServiceDesk.Abstractions;
+    using ServiceDesk;
+
     public class Startup
     {
         public void ConfigureServices(IServiceCollection services)

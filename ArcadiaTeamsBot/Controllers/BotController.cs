@@ -1,11 +1,11 @@
-﻿using System.Threading;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Bot.Builder;
-using Microsoft.Bot.Builder.Integration.AspNet.Core;
-
-namespace ArcadiaTeamsBot.Controllers
+﻿namespace ArcadiaTeamsBot.Controllers
 {
+    using System.Threading;
+    using System.Threading.Tasks;
+    using Microsoft.AspNetCore.Mvc;
+    using Microsoft.Bot.Builder;
+    using Microsoft.Bot.Builder.Integration.AspNet.Core;
+
     [ApiController]
     [Route("api/messages")]
     public class BotController : ControllerBase

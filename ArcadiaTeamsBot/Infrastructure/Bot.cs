@@ -1,11 +1,11 @@
-﻿using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
-using Microsoft.Bot.Builder;
-using Microsoft.Bot.Schema;
-
-namespace ArcadiaTeamsBot.Infrastructure
+﻿namespace ArcadiaTeamsBot.Infrastructure
 {
+    using System.Collections.Generic;
+    using System.Threading;
+    using System.Threading.Tasks;
+    using Microsoft.Bot.Builder;
+    using Microsoft.Bot.Schema;
+
     public class Bot : ActivityHandler
     {
         protected override async Task OnMembersAddedAsync(IList<ChannelAccount> membersAdded, ITurnContext<IConversationUpdateActivity> turnContext, CancellationToken cancellationToken)

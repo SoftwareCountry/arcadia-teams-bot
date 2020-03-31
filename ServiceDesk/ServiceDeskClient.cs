@@ -1,13 +1,13 @@
-﻿using ServiceDesk.Abstractions;
-using ServiceDesk.Abstractions.DTOs;
-using System.Collections.Generic;
-using System.Net.Http;
-using System.Threading.Tasks;
-using System.Text.Json;
-using System.Threading;
-
-namespace ServiceDesk
+﻿namespace ServiceDesk
 {
+    using ServiceDesk.Abstractions;
+    using ServiceDesk.Abstractions.DTOs;
+    using System.Collections.Generic;
+    using System.Net.Http;
+    using System.Threading.Tasks;
+    using System.Text.Json;
+    using System.Threading;
+
     public class ServiceDeskClient : IServiceDeskClient
     {
         private const string requestTypesUrl = "https://arcadia-servicedesk-dev31.azurewebsites.net/api/intra/requestTypes";

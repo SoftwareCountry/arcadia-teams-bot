@@ -1,7 +1,7 @@
-﻿using System;
-
-namespace ServiceDesk.Abstractions.DTOs
+﻿namespace ServiceDesk.Abstractions.DTOs
 {
+    using System;
+
     public class ServiceDeskRequestDTO
     {
         public string RequestNumber { get; set; }

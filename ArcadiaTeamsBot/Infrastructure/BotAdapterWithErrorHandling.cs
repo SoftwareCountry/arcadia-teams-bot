@@ -1,12 +1,14 @@
-﻿using System;
-using Microsoft.Bot.Builder;
-using Microsoft.Bot.Builder.Integration.AspNet.Core;
-using Microsoft.Bot.Builder.TraceExtensions;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
+﻿
 
 namespace ArcadiaTeamsBot.Infrastructure
 {
+    using System;
+    using Microsoft.Bot.Builder;
+    using Microsoft.Bot.Builder.Integration.AspNet.Core;
+    using Microsoft.Bot.Builder.TraceExtensions;
+    using Microsoft.Extensions.Configuration;
+    using Microsoft.Extensions.Logging;
+
     public class BotAdapterWithErrorHandling : BotFrameworkHttpAdapter
     {
         public BotAdapterWithErrorHandling(IConfiguration configuration, ILogger<BotFrameworkHttpAdapter> logger, ConversationState conversationState = null)
