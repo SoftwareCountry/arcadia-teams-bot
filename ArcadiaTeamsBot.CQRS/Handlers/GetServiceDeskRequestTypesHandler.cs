@@ -8,7 +8,7 @@
     using ArcadiaTeamsBot.CQRS.Abstractions;
     using ServiceDesk.Abstractions;
 
-    internal class GetServiceDeskRequestTypesHandler : IRequestHandler<GetServiceDeskRequestTypesQuery, IEnumerable<ServiceDeskRequestTypeDTO>>
+    public class GetServiceDeskRequestTypesHandler : IRequestHandler<GetServiceDeskRequestTypesQuery, IEnumerable<ServiceDeskRequestTypeDTO>>
     {
         public GetServiceDeskRequestTypesHandler(IServiceDeskClient serviceDeskClient)
         {

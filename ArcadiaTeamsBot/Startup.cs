@@ -8,9 +8,9 @@ namespace ArcadiaTeamsBot
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.Hosting;
     using MediatR;
-    using ArcadiaTeamsBot.CQRS.Abstractions;
     using ServiceDesk.Abstractions;
     using ServiceDesk;
+    using ArcadiaTeamsBot.CQRS.Handlers;
 
     public class Startup
     {
@@ -22,7 +22,7 @@ namespace ArcadiaTeamsBot
 
             services.AddTransient<IBot, Bot>();
 
-            services.AddMediatR(typeof(GetServiceDeskRequestTypesQuery).Assembly);
+            services.AddMediatR(typeof(GetServiceDeskRequestTypesHandler).Assembly);
 
             services.AddHttpClient();
 
