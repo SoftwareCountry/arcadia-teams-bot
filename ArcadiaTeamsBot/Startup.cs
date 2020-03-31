@@ -1,5 +1,6 @@
 namespace ArcadiaTeamsBot
 {
+    using ArcadiaTeamsBot.Dialogs;
     using ArcadiaTeamsBot.Infrastructure;
 
     using Microsoft.AspNetCore.Builder;
@@ -16,7 +17,14 @@ namespace ArcadiaTeamsBot
             services.AddControllers();
 
             services.AddSingleton<IBotFrameworkHttpAdapter, BotAdapterWithErrorHandling>();
-            services.AddTransient<IBot, Bot>();
+
+            services.AddSingleton<IStorage, MemoryStorage>();
+
+            services.AddSingleton<ConversationState>();
+
+            services.AddSingleton<MainDialog>();
+
+            services.AddTransient<IBot, Bot<MainDialog>>();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)

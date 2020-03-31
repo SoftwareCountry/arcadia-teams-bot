@@ -2,76 +2,46 @@
 using Microsoft.Bot.Schema;
 using System.Collections.Generic;
 using System.Threading;
+using Microsoft.Bot.Builder.Dialogs;
 using System.Threading.Tasks;
 
 namespace ArcadiaTeamsBot.Infrastructure
 {
-    public class Bot : ActivityHandler
+    public class Bot<T> : ActivityHandler where T : Dialog
     {
-        public const string WelcomeText = @"You can create a new request or view opened requests:";
+        protected readonly Dialog Dialog;
+        protected readonly BotState ConversationState;
 
-        protected override async Task OnMembersAddedAsync(IList<ChannelAccount> membersAdded, ITurnContext<IConversationUpdateActivity> turnContext, CancellationToken cancellationToken)
+        public Bot(ConversationState conversationState,  T dialog)
         {
-            await SendWelcomeMessageAsync(turnContext, cancellationToken);
+            ConversationState = conversationState;
+            Dialog = dialog;
         }
+
+        public override async Task OnTurnAsync(ITurnContext turnContext, CancellationToken cancellationToken = default)
+        {
+            await base.OnTurnAsync(turnContext, cancellationToken);
+            await ConversationState.SaveChangesAsync(turnContext, false, cancellationToken);
+            await Dialog.RunAsync(turnContext, ConversationState.CreateProperty<DialogState>(nameof(DialogState)), cancellationToken);
+        }
+
         protected override async Task OnMessageActivityAsync(ITurnContext<IMessageActivity> turnContext, CancellationToken cancellationToken)
         {
-            var text = turnContext.Activity.Text.ToLowerInvariant();
-
-            var responseText = ProcessInput(text);
-
-            await turnContext.SendActivityAsync(responseText, cancellationToken: cancellationToken);
-
-            await SendSuggestedActionsAsync(turnContext, cancellationToken);
+            await Dialog.RunAsync(turnContext, ConversationState.CreateProperty<DialogState>(nameof(DialogState)), cancellationToken);
         }
-        private static async Task SendWelcomeMessageAsync(ITurnContext turnContext, CancellationToken cancellationToken)
+
+        protected override async Task OnMembersAddedAsync(IList<ChannelAccount> membersAdded, ITurnContext<IConversationUpdateActivity> turnContext, CancellationToken cancellationToken)
         {
             foreach (var member in turnContext.Activity.MembersAdded)
             {
                 if (member.Id != turnContext.Activity.Recipient.Id)
                 {
                     await turnContext.SendActivityAsync(
-                        $"Welcome to ArcadiaBot, {member.Name}. {WelcomeText}",
+                        $"Welcome to ArcadiaBot, {member.Name}.",
                         cancellationToken: cancellationToken);
-                    await SendSuggestedActionsAsync(turnContext, cancellationToken);
                 }
             }
-        }
-
-        private static string ProcessInput(string text)
-        {
-            switch (text)
-            {
-                case "open":
-                    {
-                        return $"Here should be opened «Open requests»";
-                    }
-
-                case "new":
-                    {
-                        return $" Here should be opened «New request»";
-                    }
-
-                default:
-                    {
-                        return "Please select a card";
-                    }
-            }
-        }
-
-        private static async Task SendSuggestedActionsAsync(ITurnContext turnContext, CancellationToken cancellationToken)
-        {
-            var reply = MessageFactory.Text("What would you like to do?");
-
-            reply.SuggestedActions = new SuggestedActions()
-            {
-                Actions = new List<CardAction>()
-                {
-                    new CardAction() { Title = "View opened requests", Type = ActionTypes.ImBack, Value = "open" },
-                    new CardAction() { Title = "Create a new request", Type = ActionTypes.ImBack, Value = "new" },
-                },
-            };
-            await turnContext.SendActivityAsync(reply, cancellationToken);
+            await Dialog.RunAsync(turnContext, ConversationState.CreateProperty<DialogState>(nameof(DialogState)), cancellationToken);
         }
     }
 }
