@@ -12,7 +12,7 @@
     {
         public GetServiceDeskRequestTypesHandler(IServiceDeskClient serviceDeskClient)
         {
-            ServiceDeskClient = serviceDeskClient;
+            this.ServiceDeskClient = serviceDeskClient;
         }
 
         private IServiceDeskClient ServiceDeskClient { get; }
