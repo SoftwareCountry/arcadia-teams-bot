@@ -1,10 +1,10 @@
-﻿using ArcadiaTeamsBot.CQRS.Queries;
-using MediatR;
-using Newtonsoft.Json;
+﻿using MediatR;
 using ServiceDesk.Abstractions.DTOs;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Text.Json;
+using ArcadiaTeamsBot.CQRS.Abstractions;
 
 namespace ArcadiaTeamsBot.CQRS.Handlers
 {
@@ -28,7 +28,7 @@ namespace ArcadiaTeamsBot.CQRS.Handlers
                         }
                 ]";
 
-            var serviceDeskRequestPriorities = JsonConvert.DeserializeObject<IEnumerable<ServiceDeskRequestPriorityDTO>>(prioritiesJsonAsString);
+            var serviceDeskRequestPriorities = await JsonSerializer.DeserializeAsync<IEnumerable<ServiceDeskRequestPriorityDTO>>(prioritiesJsonAsString);
 
             return serviceDeskRequestPriorities;
         }

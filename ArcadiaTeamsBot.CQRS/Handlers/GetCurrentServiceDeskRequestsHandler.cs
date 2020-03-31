@@ -1,11 +1,11 @@
-﻿using ArcadiaTeamsBot.CQRS.Queries;
-using MediatR;
-using Newtonsoft.Json;
+﻿using MediatR;
 using ServiceDesk.Abstractions.DTOs;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Text.Json;
+using ArcadiaTeamsBot.CQRS.Abstractions;
 
 namespace ArcadiaTeamsBot.CQRS.Handlers
 {
@@ -18,7 +18,7 @@ namespace ArcadiaTeamsBot.CQRS.Handlers
             ClientFactory = clientFactory;
         }
 
-        public IHttpClientFactory ClientFactory { get; }
+        private IHttpClientFactory ClientFactory { get; }
 
         public async Task<IEnumerable<ServiceDeskRequestDTO>> Handle(GetCurrentServiceDeskRequestsQuery request, CancellationToken cancellationToken)
         {
@@ -30,9 +30,9 @@ namespace ArcadiaTeamsBot.CQRS.Handlers
 
             var response = await client.SendAsync(httpRequest, cancellationToken);
 
-            var responseBody = await response.Content.ReadAsStringAsync();
+            var responseBody = await response.Content.ReadAsStreamAsync();
 
-            var serviceDeskCurrentRequests = JsonConvert.DeserializeObject<IEnumerable<ServiceDeskRequestDTO>>(responseBody);
+            var serviceDeskCurrentRequests = await JsonSerializer.DeserializeAsync<IEnumerable<ServiceDeskRequestDTO>>(responseBody);
 
             return serviceDeskCurrentRequests;
         }

@@ -2,7 +2,7 @@
 using ServiceDesk.Abstractions.DTOs;
 using System.Collections.Generic;
 
-namespace ArcadiaTeamsBot.CQRS.Queries
+namespace ArcadiaTeamsBot.CQRS.Abstractions
 {
     public class GetCurrentServiceDeskRequestsQuery : IRequest<IEnumerable<ServiceDeskRequestDTO>>
     {
