@@ -12,7 +12,7 @@
     {
         private const string requestTypesUrl = "https://arcadia-servicedesk-dev31.azurewebsites.net/api/intra/requestTypes";
 
-        private const string currentRequestsUri = "https://arcadia-servicedesk-dev31.azurewebsites.net/api/intra/requests?username=vyacheslav.lasukov@arcadia.spb.ru";
+        private const string currentRequestsUri = "https://arcadia-servicedesk-dev31.azurewebsites.net/api/intra/requests?username=";
 
         private readonly ServiceDeskRequestPriorityDTO[] priorities = new[] {
 
@@ -52,7 +52,12 @@
 
             var responseBody = await response.Content.ReadAsStreamAsync();
 
-            var serviceDeskRequestTypes = await JsonSerializer.DeserializeAsync<IEnumerable<ServiceDeskRequestTypeDTO>>(responseBody);
+            var options = new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true,
+            };
+
+            var serviceDeskRequestTypes = await JsonSerializer.DeserializeAsync<IEnumerable<ServiceDeskRequestTypeDTO>>(responseBody, options);
 
             return serviceDeskRequestTypes;
         }
@@ -69,7 +74,12 @@
 
             var responseBody = await response.Content.ReadAsStreamAsync();
 
-            var serviceDeskCurrentRequests = await JsonSerializer.DeserializeAsync<IEnumerable<ServiceDeskRequestDTO>>(responseBody);
+            var options = new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true,
+            };
+
+            var serviceDeskCurrentRequests = await JsonSerializer.DeserializeAsync<IEnumerable<ServiceDeskRequestDTO>>(responseBody, options);
 
             return serviceDeskCurrentRequests;
         }
