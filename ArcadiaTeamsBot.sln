@@ -7,11 +7,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ArcadiaTeamsBot", "ArcadiaT
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ArcadiaTeamsBot.CQRS", "ArcadiaTeamsBot.CQRS\ArcadiaTeamsBot.CQRS.csproj", "{A4C32C4B-CEB3-419B-9AF8-BA1E47514717}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ServiceDesk.Abstractions", "ServiceDesk.Abstractions\ServiceDesk.Abstractions.csproj", "{32254F05-44E4-424D-893F-F0CF37AFCB4A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ArcadiaTeamsBot.ServiceDesk.Abstractions", "ServiceDesk.Abstractions\ArcadiaTeamsBot.ServiceDesk.Abstractions.csproj", "{32254F05-44E4-424D-893F-F0CF37AFCB4A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServiceDesk", "ServiceDesk\ServiceDesk.csproj", "{D3AA42FE-3868-4FF3-82C4-AC814520B31F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ArcadiaTeamsBot.ServiceDesk", "ServiceDesk\ArcadiaTeamsBot.ServiceDesk.csproj", "{D3AA42FE-3868-4FF3-82C4-AC814520B31F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ArcadiaTeamsBot.CQRS.Abstractions", "ArcadiaTeamsBot.CQRS.Abstractions\ArcadiaTeamsBot.CQRS.Abstractions.csproj", "{D98D1112-FA87-4853-912C-85571569CF72}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ArcadiaTeamsBot.CQRS.Abstractions", "ArcadiaTeamsBot.CQRS.Abstractions\ArcadiaTeamsBot.CQRS.Abstractions.csproj", "{D98D1112-FA87-4853-912C-85571569CF72}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

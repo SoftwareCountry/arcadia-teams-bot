@@ -10,7 +10,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\ServiceDesk.Abstractions\ServiceDesk.Abstractions.csproj" />
+    <ProjectReference Include="..\ServiceDesk.Abstractions\ArcadiaTeamsBot.ServiceDesk.Abstractions.csproj" />
   </ItemGroup>
 
 </Project>
