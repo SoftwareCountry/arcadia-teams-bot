@@ -35,7 +35,7 @@
 
         public ServiceDeskClient(IHttpClientFactory clientFactory)
         {
-            ClientFactory = clientFactory;
+            this.ClientFactory = clientFactory;
         }
 
         private IHttpClientFactory ClientFactory { get; }
@@ -46,7 +46,7 @@
 
             httpRequest.Headers.Add("x-api-key", "not-installed");
 
-            var client = ClientFactory.CreateClient();
+            var client = this.ClientFactory.CreateClient();
 
             var response = await client.SendAsync(httpRequest, cancellationToken);
 
@@ -63,7 +63,7 @@
 
             httpRequest.Headers.Add("x-api-key", "not-installed");
 
-            var client = ClientFactory.CreateClient();
+            var client = this.ClientFactory.CreateClient();
 
             var response = await client.SendAsync(httpRequest, cancellationToken);
 

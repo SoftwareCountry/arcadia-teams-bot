@@ -15,11 +15,11 @@
             ServiceDeskClient = serviceDeskClient;
         }
 
-        public IServiceDeskClient ServiceDeskClient { get; }
+        private IServiceDeskClient ServiceDeskClient { get; }
 
         public async Task<IEnumerable<ServiceDeskRequestPriorityDTO>> Handle(GetServiceDeskRequestPrioritiesQuery request, CancellationToken cancellationToken)
         {
-            return await ServiceDeskClient.GetPriorities(cancellationToken);
+            return await this.ServiceDeskClient.GetPriorities(cancellationToken);
         }
     }
 }

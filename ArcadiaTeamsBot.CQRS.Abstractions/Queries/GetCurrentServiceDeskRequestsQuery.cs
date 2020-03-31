@@ -6,5 +6,11 @@
 
     public class GetCurrentServiceDeskRequestsQuery : IRequest<IEnumerable<ServiceDeskRequestDTO>>
     {
+        public GetCurrentServiceDeskRequestsQuery(string username)
+        {
+            Username = username;
+        }
+
+        public string Username { get; }
     }
 }

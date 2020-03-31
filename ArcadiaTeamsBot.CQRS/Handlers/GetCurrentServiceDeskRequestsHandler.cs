@@ -15,14 +15,11 @@
             ServiceDeskClient = serviceDeskClient;
         }
 
-        public IServiceDeskClient ServiceDeskClient { get; }
+        private IServiceDeskClient ServiceDeskClient { get; }
 
         public async Task<IEnumerable<ServiceDeskRequestDTO>> Handle(GetCurrentServiceDeskRequestsQuery request, CancellationToken cancellationToken)
         {
-            // Temporary
-            var username = "vyacheslav.lasukov@arcadia.spb.ru"; 
-
-            return await ServiceDeskClient.GetCurrentRequests(username, cancellationToken); ;
+            return await this.ServiceDeskClient.GetCurrentRequests(request.Username, cancellationToken); ;
         }
     }
 }
