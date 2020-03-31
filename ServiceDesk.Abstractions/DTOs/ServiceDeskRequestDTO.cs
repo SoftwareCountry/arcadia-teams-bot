@@ -13,7 +13,5 @@
         public string StatusName { get; set; }
 
         public string ExecutorFullName { get; set; }
-
-        public string ExecutorIconUrl { get; set; }
     }
 }
