@@ -10,16 +10,16 @@
 
     internal class GetServiceDeskRequestPrioritiesHandler : IRequestHandler<GetServiceDeskRequestPrioritiesQuery, IEnumerable<ServiceDeskRequestPriorityDTO>>
     {
+        private readonly IServiceDeskClient serviceDeskClient;
+
         public GetServiceDeskRequestPrioritiesHandler(IServiceDeskClient serviceDeskClient)
         {
-            this.ServiceDeskClient = serviceDeskClient;
+            this.serviceDeskClient = serviceDeskClient;
         }
 
-        private IServiceDeskClient ServiceDeskClient { get; }
-
-        public async Task<IEnumerable<ServiceDeskRequestPriorityDTO>> Handle(GetServiceDeskRequestPrioritiesQuery request, CancellationToken cancellationToken)
+        public Task<IEnumerable<ServiceDeskRequestPriorityDTO>> Handle(GetServiceDeskRequestPrioritiesQuery request, CancellationToken cancellationToken)
         {
-            return await this.ServiceDeskClient.GetPriorities(cancellationToken);
+            return this.serviceDeskClient.GetPriorities(cancellationToken);
         }
     }
 }

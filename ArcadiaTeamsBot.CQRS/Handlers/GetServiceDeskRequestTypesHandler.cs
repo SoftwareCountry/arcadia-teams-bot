@@ -10,16 +10,16 @@
 
     public class GetServiceDeskRequestTypesHandler : IRequestHandler<GetServiceDeskRequestTypesQuery, IEnumerable<ServiceDeskRequestTypeDTO>>
     {
+        private readonly IServiceDeskClient serviceDeskClient;
+
         public GetServiceDeskRequestTypesHandler(IServiceDeskClient serviceDeskClient)
         {
-            this.ServiceDeskClient = serviceDeskClient;
+            this.serviceDeskClient = serviceDeskClient;
         }
 
-        private IServiceDeskClient ServiceDeskClient { get; }
-
-        public async Task<IEnumerable<ServiceDeskRequestTypeDTO>> Handle(GetServiceDeskRequestTypesQuery request, CancellationToken cancellationToken)
+        public Task<IEnumerable<ServiceDeskRequestTypeDTO>> Handle(GetServiceDeskRequestTypesQuery request, CancellationToken cancellationToken)
         {
-            return await this.ServiceDeskClient.GetRequestTypes(cancellationToken);
+            return this.serviceDeskClient.GetRequestTypes(cancellationToken);
         }
     }
 }

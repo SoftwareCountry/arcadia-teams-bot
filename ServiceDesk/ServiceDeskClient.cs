@@ -33,12 +33,12 @@
                 },
             };
 
+        private readonly IHttpClientFactory clientFactory;
+
         public ServiceDeskClient(IHttpClientFactory clientFactory)
         {
-            this.ClientFactory = clientFactory;
+            this.clientFactory = clientFactory;
         }
-
-        private IHttpClientFactory ClientFactory { get; }
 
         public async Task<IEnumerable<ServiceDeskRequestTypeDTO>> GetRequestTypes(CancellationToken cancellationToken)
         {
@@ -46,7 +46,7 @@
 
             httpRequest.Headers.Add("x-api-key", "not-installed");
 
-            var client = this.ClientFactory.CreateClient();
+            var client = this.clientFactory.CreateClient();
 
             var response = await client.SendAsync(httpRequest, cancellationToken);
 
@@ -68,7 +68,7 @@
 
             httpRequest.Headers.Add("x-api-key", "not-installed");
 
-            var client = this.ClientFactory.CreateClient();
+            var client = this.clientFactory.CreateClient();
 
             var response = await client.SendAsync(httpRequest, cancellationToken);
 
