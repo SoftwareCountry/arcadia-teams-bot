@@ -22,7 +22,6 @@ namespace ArcadiaTeamsBot.Infrastructure
         {
             await base.OnTurnAsync(turnContext, cancellationToken);
             await ConversationState.SaveChangesAsync(turnContext, false, cancellationToken);
-            await Dialog.RunAsync(turnContext, ConversationState.CreateProperty<DialogState>(nameof(DialogState)), cancellationToken);
         }
 
         protected override async Task OnMessageActivityAsync(ITurnContext<IMessageActivity> turnContext, CancellationToken cancellationToken)
