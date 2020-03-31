@@ -13,9 +13,17 @@ namespace ArcadiaTeamsBot
     using ArcadiaTeamsBot.ServiceDesk;
     using ArcadiaTeamsBot.Infrastructure;
     using ArcadiaTeamsBot.CQRS.Handlers;
+    using Microsoft.Extensions.Configuration;
 
     public class Startup
     {
+        private readonly ServiceDeskConfiguration serviceDeskConfiguration;
+
+        public Startup(IConfiguration configuration)
+        {
+            this.serviceDeskConfiguration = configuration.GetSection("ServiceDesk").Get<ServiceDeskConfiguration>();
+        }
+
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
@@ -27,6 +35,7 @@ namespace ArcadiaTeamsBot
             services.AddScoped<IServiceDeskClient, ServiceDeskClient>();
             services.AddTransient<IBot, Bot>();
             services.AddSingleton<IBotFrameworkHttpAdapter, BotAdapterWithErrorHandling>();
+            services.AddSingleton(this.serviceDeskConfiguration);
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)

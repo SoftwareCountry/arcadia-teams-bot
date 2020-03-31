@@ -11,9 +11,10 @@
 
     public class ServiceDeskClient : IServiceDeskClient
     {
-        private const string requestTypesUrl = "https://arcadia-servicedesk-dev31.azurewebsites.net/api/intra/requestTypes";
-        private const string currentRequestsUri = "https://arcadia-servicedesk-dev31.azurewebsites.net/api/intra/requests?username=";
+        private const string requestTypesUrl = "intra/requestTypes";
+        private const string currentRequestsUrl = "intra/requests?username=";
         private readonly IHttpClientFactory clientFactory;
+        private readonly ServiceDeskConfiguration serviceDeskConfiguration;
         private readonly ServiceDeskRequestPriorityDTO[] priorities = new[] {
 
                 new ServiceDeskRequestPriorityDTO
@@ -33,14 +34,15 @@
                 },
             };
 
-        public ServiceDeskClient(IHttpClientFactory clientFactory)
+        public ServiceDeskClient(IHttpClientFactory clientFactory, ServiceDeskConfiguration serviceDeskConfiguration)
         {
             this.clientFactory = clientFactory;
+            this.serviceDeskConfiguration = serviceDeskConfiguration;
         }
 
         public async Task<IEnumerable<ServiceDeskRequestTypeDTO>> GetRequestTypes(CancellationToken cancellationToken)
         {
-            var httpRequest = new HttpRequestMessage(HttpMethod.Get, requestTypesUrl);
+            var httpRequest = new HttpRequestMessage(HttpMethod.Get, $"{this.serviceDeskConfiguration.ApiUrl}{requestTypesUrl}");
 
             httpRequest.Headers.Add("x-api-key", "not-installed");
 
@@ -62,7 +64,7 @@
 
         public async Task<IEnumerable<ServiceDeskRequestDTO>> GetCurrentRequests(string username, CancellationToken cancellationToken)
         {
-            var httpRequest = new HttpRequestMessage(HttpMethod.Get, $"{currentRequestsUri}{username}");
+            var httpRequest = new HttpRequestMessage(HttpMethod.Get, $"{this.serviceDeskConfiguration.ApiUrl}{currentRequestsUrl}{username}");
 
             httpRequest.Headers.Add("x-api-key", "not-installed");
 
