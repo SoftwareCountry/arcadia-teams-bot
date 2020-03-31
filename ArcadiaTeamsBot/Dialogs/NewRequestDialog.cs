@@ -1,12 +1,13 @@
-﻿using Microsoft.Bot.Builder;
-using Microsoft.Bot.Builder.Dialogs;
-using Microsoft.Bot.Builder.Dialogs.Choices;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
-
-namespace ArcadiaTeamsBot.Dialogs
+﻿namespace ArcadiaTeamsBot.Dialogs
 {
+    using Microsoft.Bot.Builder;
+    using Microsoft.Bot.Builder.Dialogs;
+    using Microsoft.Bot.Builder.Dialogs.Choices;
+
+    using System.Collections.Generic;
+    using System.Threading;
+    using System.Threading.Tasks;
+
     public class NewRequestDialog : ComponentDialog
     {
         public NewRequestDialog() : base(nameof(NewRequestDialog))
@@ -15,12 +16,10 @@ namespace ArcadiaTeamsBot.Dialogs
             {
                 TypeStep,
                 AnotherSteps,
-                
             }));
 
             AddDialog(new TextPrompt(nameof(TextPrompt)));
             AddDialog(new ChoicePrompt(nameof(ChoicePrompt)));
-
             InitialDialogId = nameof(WaterfallDialog);
         }
 

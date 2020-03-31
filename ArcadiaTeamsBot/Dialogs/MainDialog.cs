@@ -1,19 +1,19 @@
-﻿using System.Collections.Generic;
-using Microsoft.Bot.Builder.Dialogs;
-using System.Threading.Tasks;
-using Microsoft.Bot.Builder;
-using Microsoft.Bot.Builder.Dialogs.Choices;
-using System.Threading;
-
-namespace ArcadiaTeamsBot.Dialogs
+﻿namespace ArcadiaTeamsBot.Dialogs
 {
+    using System.Collections.Generic;
+    using System.Threading;
+    using System.Threading.Tasks;
+
+    using Microsoft.Bot.Builder.Dialogs;
+    using Microsoft.Bot.Builder;
+    using Microsoft.Bot.Builder.Dialogs.Choices;
+    
     public class MainDialog : ComponentDialog
     {
         public const string WelcomeText = @" You can create a new request or view opened requests. Let's go?";
         public MainDialog() : base(nameof(MainDialog))
         {
             AddDialog(new NewRequestDialog());
-
             AddDialog(new OpenedRequestsDialog());
 
             AddDialog(new WaterfallDialog(nameof(WaterfallDialog), new WaterfallStep[]
@@ -25,7 +25,6 @@ namespace ArcadiaTeamsBot.Dialogs
 
             AddDialog(new ChoicePrompt(nameof(ChoicePrompt)));
             AddDialog(new ConfirmPrompt(nameof(ConfirmPrompt)));
-
             InitialDialogId = nameof(WaterfallDialog);
         }
 

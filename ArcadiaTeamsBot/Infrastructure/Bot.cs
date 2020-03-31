@@ -1,12 +1,13 @@
-﻿using Microsoft.Bot.Builder;
-using Microsoft.Bot.Schema;
-using System.Collections.Generic;
-using System.Threading;
-using Microsoft.Bot.Builder.Dialogs;
-using System.Threading.Tasks;
-
-namespace ArcadiaTeamsBot.Infrastructure
+﻿namespace ArcadiaTeamsBot.Infrastructure
 {
+    using Microsoft.Bot.Builder;
+    using Microsoft.Bot.Schema;
+    using Microsoft.Bot.Builder.Dialogs;
+
+    using System.Collections.Generic;
+    using System.Threading.Tasks;
+    using System.Threading;
+
     public class Bot<T> : ActivityHandler where T : Dialog
     {
         protected readonly Dialog Dialog;
