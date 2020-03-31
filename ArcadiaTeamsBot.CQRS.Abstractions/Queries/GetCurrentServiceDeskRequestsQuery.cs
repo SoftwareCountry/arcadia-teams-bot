@@ -8,7 +8,7 @@
     {
         public GetCurrentServiceDeskRequestsQuery(string username)
         {
-            Username = username;
+            this.Username = username;
         }
 
         public string Username { get; }

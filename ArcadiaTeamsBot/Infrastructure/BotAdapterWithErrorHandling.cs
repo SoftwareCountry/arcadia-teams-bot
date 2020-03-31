@@ -1,6 +1,4 @@
-﻿
-
-namespace ArcadiaTeamsBot.Infrastructure
+﻿namespace ArcadiaTeamsBot.Infrastructure
 {
     using System;
     using Microsoft.Bot.Builder;
