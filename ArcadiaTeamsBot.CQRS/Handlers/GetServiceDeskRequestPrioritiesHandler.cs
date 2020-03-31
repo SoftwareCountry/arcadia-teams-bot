@@ -21,7 +21,7 @@
 
         public Task<IEnumerable<ServiceDeskRequestPriorityDTO>> Handle(GetServiceDeskRequestPrioritiesQuery request, CancellationToken cancellationToken)
         {
-            return this.serviceDeskClient.GetPriorities(cancellationToken);
+            return this.serviceDeskClient.GetPriorities();
         }
     }
 }

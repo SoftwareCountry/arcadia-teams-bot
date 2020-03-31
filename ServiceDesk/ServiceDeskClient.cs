@@ -15,7 +15,7 @@
         private const string currentRequestsUrl = "intra/requests?username=";
         private readonly IHttpClientFactory clientFactory;
         private readonly ServiceDeskConfiguration serviceDeskConfiguration;
-        private readonly ServiceDeskRequestPriorityDTO[] priorities = new[] {
+        private readonly IEnumerable<ServiceDeskRequestPriorityDTO> priorities = new[] {
 
                 new ServiceDeskRequestPriorityDTO
                 {
@@ -40,9 +40,24 @@
             this.serviceDeskConfiguration = serviceDeskConfiguration;
         }
 
-        public async Task<IEnumerable<ServiceDeskRequestTypeDTO>> GetRequestTypes(CancellationToken cancellationToken)
+        public Task<IEnumerable<ServiceDeskRequestTypeDTO>> GetRequestTypes(CancellationToken cancellationToken)
         {
-            var httpRequest = new HttpRequestMessage(HttpMethod.Get, $"{this.serviceDeskConfiguration.ApiUrl}{requestTypesUrl}");
+            return this.GetByUrl<ServiceDeskRequestTypeDTO>($"{this.serviceDeskConfiguration.ApiUrl}{requestTypesUrl}", cancellationToken);
+        }
+
+        public Task<IEnumerable<ServiceDeskRequestDTO>> GetCurrentRequests(string username, CancellationToken cancellationToken)
+        {
+            return this.GetByUrl<ServiceDeskRequestDTO>($"{this.serviceDeskConfiguration.ApiUrl}{currentRequestsUrl}{username}", cancellationToken);
+        }
+
+        public Task<IEnumerable<ServiceDeskRequestPriorityDTO>> GetPriorities()
+        {
+            return Task.FromResult(this.priorities);
+        }
+
+        public async Task<IEnumerable<T>> GetByUrl<T>(string url, CancellationToken cancellationToken)
+        {
+            var httpRequest = new HttpRequestMessage(HttpMethod.Get, url);
 
             httpRequest.Headers.Add("x-api-key", "not-installed");
 
@@ -57,36 +72,7 @@
                 PropertyNameCaseInsensitive = true,
             };
 
-            var serviceDeskRequestTypes = await JsonSerializer.DeserializeAsync<IEnumerable<ServiceDeskRequestTypeDTO>>(responseBody, options);
-
-            return serviceDeskRequestTypes;
-        }
-
-        public async Task<IEnumerable<ServiceDeskRequestDTO>> GetCurrentRequests(string username, CancellationToken cancellationToken)
-        {
-            var httpRequest = new HttpRequestMessage(HttpMethod.Get, $"{this.serviceDeskConfiguration.ApiUrl}{currentRequestsUrl}{username}");
-
-            httpRequest.Headers.Add("x-api-key", "not-installed");
-
-            var client = this.clientFactory.CreateClient();
-
-            var response = await client.SendAsync(httpRequest, cancellationToken);
-
-            var responseBody = await response.Content.ReadAsStreamAsync();
-
-            var options = new JsonSerializerOptions
-            {
-                PropertyNameCaseInsensitive = true,
-            };
-
-            var serviceDeskCurrentRequests = await JsonSerializer.DeserializeAsync<IEnumerable<ServiceDeskRequestDTO>>(responseBody, options);
-
-            return serviceDeskCurrentRequests;
-        }
-
-        public async Task<IEnumerable<ServiceDeskRequestPriorityDTO>> GetPriorities(CancellationToken cancellationToken)
-        {
-            return this.priorities;
+            return await JsonSerializer.DeserializeAsync<IEnumerable<T>>(responseBody, options);
         }
     }
 }
