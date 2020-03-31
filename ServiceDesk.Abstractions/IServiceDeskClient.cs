@@ -1,9 +1,10 @@
-﻿namespace ServiceDesk.Abstractions
+﻿namespace ArcadiaTeamsBot.ServiceDesk.Abstractions
 {
-    using ServiceDesk.Abstractions.DTOs;
     using System.Collections.Generic;
     using System.Threading;
     using System.Threading.Tasks;
+
+    using ArcadiaTeamsBot.ServiceDesk.Abstractions.DTOs;
 
     public interface IServiceDeskClient
     {

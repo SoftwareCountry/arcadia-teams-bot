@@ -1,19 +1,19 @@
-﻿namespace ServiceDesk
+﻿namespace ArcadiaTeamsBot.ServiceDesk
 {
-    using ServiceDesk.Abstractions;
-    using ServiceDesk.Abstractions.DTOs;
     using System.Collections.Generic;
     using System.Net.Http;
     using System.Threading.Tasks;
     using System.Text.Json;
     using System.Threading;
 
+    using ArcadiaTeamsBot.ServiceDesk.Abstractions;
+    using ArcadiaTeamsBot.ServiceDesk.Abstractions.DTOs;
+
     public class ServiceDeskClient : IServiceDeskClient
     {
         private const string requestTypesUrl = "https://arcadia-servicedesk-dev31.azurewebsites.net/api/intra/requestTypes";
-
         private const string currentRequestsUri = "https://arcadia-servicedesk-dev31.azurewebsites.net/api/intra/requests?username=";
-
+        private readonly IHttpClientFactory clientFactory;
         private readonly ServiceDeskRequestPriorityDTO[] priorities = new[] {
 
                 new ServiceDeskRequestPriorityDTO
@@ -32,8 +32,6 @@
                     Value="High"
                 },
             };
-
-        private readonly IHttpClientFactory clientFactory;
 
         public ServiceDeskClient(IHttpClientFactory clientFactory)
         {

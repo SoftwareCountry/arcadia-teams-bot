@@ -1,4 +1,4 @@
-﻿namespace ServiceDesk.Abstractions.DTOs
+﻿namespace ArcadiaTeamsBot.ServiceDesk.Abstractions.DTOs
 {
     public class ServiceDeskRequestPriorityDTO
     {

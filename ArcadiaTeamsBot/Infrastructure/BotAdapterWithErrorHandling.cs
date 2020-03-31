@@ -1,6 +1,7 @@
 ﻿namespace ArcadiaTeamsBot.Infrastructure
 {
     using System;
+
     using Microsoft.Bot.Builder;
     using Microsoft.Bot.Builder.Integration.AspNet.Core;
     using Microsoft.Bot.Builder.TraceExtensions;

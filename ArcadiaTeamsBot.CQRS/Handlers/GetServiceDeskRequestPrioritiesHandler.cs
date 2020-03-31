@@ -1,12 +1,14 @@
 ﻿namespace ArcadiaTeamsBot.CQRS.Handlers
 {
     using MediatR;
-    using ServiceDesk.Abstractions.DTOs;
+
     using System.Collections.Generic;
     using System.Threading;
     using System.Threading.Tasks;
+
+    using ArcadiaTeamsBot.ServiceDesk.Abstractions.DTOs;
     using ArcadiaTeamsBot.CQRS.Abstractions;
-    using ServiceDesk.Abstractions;
+    using ArcadiaTeamsBot.ServiceDesk.Abstractions;
 
     internal class GetServiceDeskRequestPrioritiesHandler : IRequestHandler<GetServiceDeskRequestPrioritiesQuery, IEnumerable<ServiceDeskRequestPriorityDTO>>
     {
