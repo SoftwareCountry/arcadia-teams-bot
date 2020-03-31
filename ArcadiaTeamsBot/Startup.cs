@@ -1,4 +1,3 @@
-using ArcadiaTeamsBot.CQRS.Queries;
 using ArcadiaTeamsBot.Infrastructure;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -7,6 +6,9 @@ using Microsoft.Bot.Builder.Integration.AspNet.Core;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using MediatR;
+using ArcadiaTeamsBot.CQRS.Abstractions;
+using ServiceDesk.Abstractions;
+using ServiceDesk;
 
 namespace ArcadiaTeamsBot
 {
@@ -23,6 +25,8 @@ namespace ArcadiaTeamsBot
             services.AddMediatR(typeof(GetServiceDeskRequestTypesQuery).Assembly);
 
             services.AddHttpClient();
+
+            services.AddScoped<IServiceDeskClient, ServiceDeskClient>();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)

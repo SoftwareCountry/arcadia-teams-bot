@@ -11,6 +11,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\ArcadiaTeamsBot.CQRS\ArcadiaTeamsBot.CQRS.csproj" />
+    <ProjectReference Include="..\ServiceDesk\ServiceDesk.csproj" />
   </ItemGroup>
 
 </Project>
