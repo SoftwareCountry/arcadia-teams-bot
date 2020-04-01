@@ -13,8 +13,10 @@
     {
         private const string requestTypesUrl = "intra/requestTypes";
         private const string currentRequestsUrl = "intra/requests?username=";
+
         private readonly IHttpClientFactory clientFactory;
         private readonly ServiceDeskConfiguration serviceDeskConfiguration;
+
         private readonly IEnumerable<ServiceDeskRequestPriorityDTO> priorities = new[] {
 
                 new ServiceDeskRequestPriorityDTO
@@ -42,12 +44,12 @@
 
         public Task<IEnumerable<ServiceDeskRequestTypeDTO>> GetRequestTypes(CancellationToken cancellationToken)
         {
-            return this.GetByUrl<ServiceDeskRequestTypeDTO>($"{this.serviceDeskConfiguration.ApiUrl}{requestTypesUrl}", cancellationToken);
+            return this.GetByUrl<IEnumerable<ServiceDeskRequestTypeDTO>>($"{this.serviceDeskConfiguration.ApiUrl}{requestTypesUrl}", cancellationToken);
         }
 
         public Task<IEnumerable<ServiceDeskRequestDTO>> GetCurrentRequests(string username, CancellationToken cancellationToken)
         {
-            return this.GetByUrl<ServiceDeskRequestDTO>($"{this.serviceDeskConfiguration.ApiUrl}{currentRequestsUrl}{username}", cancellationToken);
+            return this.GetByUrl<IEnumerable<ServiceDeskRequestDTO>>($"{this.serviceDeskConfiguration.ApiUrl}{currentRequestsUrl}{username}", cancellationToken);
         }
 
         public Task<IEnumerable<ServiceDeskRequestPriorityDTO>> GetPriorities()
@@ -55,11 +57,14 @@
             return Task.FromResult(this.priorities);
         }
 
-        public async Task<IEnumerable<T>> GetByUrl<T>(string url, CancellationToken cancellationToken)
+        public async Task<T> GetByUrl<T>(string url, CancellationToken cancellationToken)
         {
             var httpRequest = new HttpRequestMessage(HttpMethod.Get, url);
 
-            httpRequest.Headers.Add("x-api-key", "not-installed");
+            foreach (var header in this.serviceDeskConfiguration.Headers)
+            {
+                httpRequest.Headers.Add(header.Key, header.Value);
+            }
 
             var client = this.clientFactory.CreateClient();
 
@@ -72,7 +77,7 @@
                 PropertyNameCaseInsensitive = true,
             };
 
-            return await JsonSerializer.DeserializeAsync<IEnumerable<T>>(responseBody, options);
+            return await JsonSerializer.DeserializeAsync<T>(responseBody, options);
         }
     }
 }
