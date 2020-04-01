@@ -4,10 +4,10 @@
     using System.Threading;
     using System.Threading.Tasks;
 
-    using Microsoft.Bot.Builder.Dialogs;
     using Microsoft.Bot.Builder;
+    using Microsoft.Bot.Builder.Dialogs;
     using Microsoft.Bot.Builder.Dialogs.Choices;
-    
+
     public class MainDialog : ComponentDialog
     {
         public const string WelcomeText = @" You can create a new request or view opened requests. Let's go?";
@@ -31,8 +31,9 @@
         private static async Task<DialogTurnResult> WelcomeStep(WaterfallStepContext stepContext, CancellationToken cancellationToken)
         {
             return await stepContext.PromptAsync(nameof(ConfirmPrompt),
-                new PromptOptions { 
-                    Prompt = MessageFactory.Text($"{WelcomeText}") 
+                new PromptOptions
+                {
+                    Prompt = MessageFactory.Text($"{WelcomeText}")
                 }, cancellationToken);
         }
 

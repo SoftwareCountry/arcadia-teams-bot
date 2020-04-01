@@ -1,12 +1,12 @@
 ﻿namespace ArcadiaTeamsBot.Dialogs
 {
-    using Microsoft.Bot.Builder;
-    using Microsoft.Bot.Builder.Dialogs;
-    using Microsoft.Bot.Builder.Dialogs.Choices;
-
     using System.Collections.Generic;
     using System.Threading;
     using System.Threading.Tasks;
+
+    using Microsoft.Bot.Builder;
+    using Microsoft.Bot.Builder.Dialogs;
+    using Microsoft.Bot.Builder.Dialogs.Choices;
 
     public class OpenedRequestsDialog : ComponentDialog
     {
