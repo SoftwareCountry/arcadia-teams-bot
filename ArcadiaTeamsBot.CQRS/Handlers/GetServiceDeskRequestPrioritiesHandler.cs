@@ -1,10 +1,10 @@
 ﻿namespace ArcadiaTeamsBot.CQRS.Handlers
 {
-    using MediatR;
-
     using System.Collections.Generic;
     using System.Threading;
     using System.Threading.Tasks;
+
+    using MediatR;
 
     using ArcadiaTeamsBot.ServiceDesk.Abstractions.DTOs;
     using ArcadiaTeamsBot.CQRS.Abstractions;

@@ -1,8 +1,8 @@
 ﻿namespace ArcadiaTeamsBot.CQRS.Abstractions
 {
-    using MediatR;
-
     using System.Collections.Generic;
+
+    using MediatR;
 
     using ArcadiaTeamsBot.ServiceDesk.Abstractions.DTOs;
 

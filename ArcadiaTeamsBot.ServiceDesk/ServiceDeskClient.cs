@@ -2,9 +2,9 @@
 {
     using System.Collections.Generic;
     using System.Net.Http;
-    using System.Threading.Tasks;
     using System.Text.Json;
     using System.Threading;
+    using System.Threading.Tasks;
 
     using ArcadiaTeamsBot.ServiceDesk.Abstractions;
     using ArcadiaTeamsBot.ServiceDesk.Abstractions.DTOs;
@@ -15,26 +15,27 @@
         private const string currentRequestsUrl = "intra/requests?username=";
 
         private readonly IHttpClientFactory clientFactory;
+
+        private readonly IEnumerable<ServiceDeskRequestPriorityDTO> priorities = new[]
+        {
+            new ServiceDeskRequestPriorityDTO
+            {
+                Key = 1,
+                Value = "Low"
+            },
+            new ServiceDeskRequestPriorityDTO
+            {
+                Key = 2,
+                Value = "Default"
+            },
+            new ServiceDeskRequestPriorityDTO
+            {
+                Key = 3,
+                Value = "High"
+            }
+        };
+
         private readonly ServiceDeskConfiguration serviceDeskConfiguration;
-
-        private readonly IEnumerable<ServiceDeskRequestPriorityDTO> priorities = new[] {
-
-                new ServiceDeskRequestPriorityDTO
-                {
-                    Key = 1,
-                    Value="Low"
-                },
-                new ServiceDeskRequestPriorityDTO
-                {
-                    Key = 2,
-                    Value="Default"
-                },
-                new ServiceDeskRequestPriorityDTO
-                {
-                    Key = 3,
-                    Value="High"
-                },
-            };
 
         public ServiceDeskClient(IHttpClientFactory clientFactory, ServiceDeskConfiguration serviceDeskConfiguration)
         {
@@ -74,10 +75,10 @@
 
             var options = new JsonSerializerOptions
             {
-                PropertyNameCaseInsensitive = true,
+                PropertyNameCaseInsensitive = true
             };
 
-            return await JsonSerializer.DeserializeAsync<T>(responseBody, options);
+            return await JsonSerializer.DeserializeAsync<T>(responseBody, options, cancellationToken);
         }
     }
 }
