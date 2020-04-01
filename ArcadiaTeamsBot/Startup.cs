@@ -8,12 +8,12 @@ namespace ArcadiaTeamsBot
     using Microsoft.Bot.Builder.Integration.AspNet.Core;
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.Hosting;
+    using Microsoft.Extensions.Configuration;
 
-    using ArcadiaTeamsBot.ServiceDesk.Abstractions;
-    using ArcadiaTeamsBot.ServiceDesk;
     using ArcadiaTeamsBot.Infrastructure;
     using ArcadiaTeamsBot.CQRS.Handlers;
-    using Microsoft.Extensions.Configuration;
+    using ArcadiaTeamsBot.ServiceDesk.Abstractions;
+    using ArcadiaTeamsBot.ServiceDesk;
 
     public class Startup
     {
