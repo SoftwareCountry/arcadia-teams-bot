@@ -2,9 +2,9 @@
 {
     using System.Collections.Generic;
 
-    using MediatR;
-
     using ArcadiaTeamsBot.ServiceDesk.Abstractions.DTOs;
+
+    using MediatR;
 
     public class GetServiceDeskRequestPrioritiesQuery : IRequest<IEnumerable<ServiceDeskRequestPriorityDTO>>
     {

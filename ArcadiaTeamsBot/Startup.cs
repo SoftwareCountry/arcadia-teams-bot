@@ -1,19 +1,19 @@
 namespace ArcadiaTeamsBot
 {
+    using ArcadiaTeamsBot.CQRS.Handlers;
+    using ArcadiaTeamsBot.Infrastructure;
+    using ArcadiaTeamsBot.ServiceDesk;
+    using ArcadiaTeamsBot.ServiceDesk.Abstractions;
+
     using MediatR;
 
     using Microsoft.AspNetCore.Builder;
     using Microsoft.AspNetCore.Hosting;
     using Microsoft.Bot.Builder;
     using Microsoft.Bot.Builder.Integration.AspNet.Core;
+    using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.Hosting;
-    using Microsoft.Extensions.Configuration;
-
-    using ArcadiaTeamsBot.Infrastructure;
-    using ArcadiaTeamsBot.CQRS.Handlers;
-    using ArcadiaTeamsBot.ServiceDesk.Abstractions;
-    using ArcadiaTeamsBot.ServiceDesk;
 
     public class Startup
     {

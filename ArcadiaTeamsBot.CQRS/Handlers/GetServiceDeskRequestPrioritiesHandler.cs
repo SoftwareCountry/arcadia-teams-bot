@@ -4,11 +4,11 @@
     using System.Threading;
     using System.Threading.Tasks;
 
-    using MediatR;
-
-    using ArcadiaTeamsBot.ServiceDesk.Abstractions.DTOs;
     using ArcadiaTeamsBot.CQRS.Abstractions;
     using ArcadiaTeamsBot.ServiceDesk.Abstractions;
+    using ArcadiaTeamsBot.ServiceDesk.Abstractions.DTOs;
+
+    using MediatR;
 
     internal class GetServiceDeskRequestPrioritiesHandler : IRequestHandler<GetServiceDeskRequestPrioritiesQuery, IEnumerable<ServiceDeskRequestPriorityDTO>>
     {
