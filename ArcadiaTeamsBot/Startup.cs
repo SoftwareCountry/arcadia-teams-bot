@@ -1,22 +1,41 @@
 namespace ArcadiaTeamsBot
 {
+    using ArcadiaTeamsBot.CQRS.Handlers;
     using ArcadiaTeamsBot.Infrastructure;
+    using ArcadiaTeamsBot.ServiceDesk;
+    using ArcadiaTeamsBot.ServiceDesk.Abstractions;
+
+    using MediatR;
 
     using Microsoft.AspNetCore.Builder;
     using Microsoft.AspNetCore.Hosting;
     using Microsoft.Bot.Builder;
     using Microsoft.Bot.Builder.Integration.AspNet.Core;
+    using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.Hosting;
 
     public class Startup
     {
+        private readonly ServiceDeskConfiguration serviceDeskConfiguration;
+
+        public Startup(IConfiguration configuration)
+        {
+            this.serviceDeskConfiguration = configuration.GetSection("ServiceDesk").Get<ServiceDeskConfiguration>();
+        }
+
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
 
-            services.AddSingleton<IBotFrameworkHttpAdapter, BotAdapterWithErrorHandling>();
+            services.AddMediatR(typeof(GetServiceDeskRequestTypesHandler).Assembly);
+
+            services.AddHttpClient();
+
+            services.AddScoped<IServiceDeskClient, ServiceDeskClient>();
             services.AddTransient<IBot, Bot>();
+            services.AddSingleton<IBotFrameworkHttpAdapter, BotAdapterWithErrorHandling>();
+            services.AddSingleton(this.serviceDeskConfiguration);
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
@@ -31,9 +50,11 @@ namespace ArcadiaTeamsBot
             }
 
             app.UseDefaultFiles();
+
             app.UseStaticFiles();
 
             app.UseRouting();
+
             app.UseEndpoints(endpoints => endpoints.MapControllers());
         }
     }
