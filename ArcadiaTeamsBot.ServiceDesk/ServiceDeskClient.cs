@@ -53,7 +53,7 @@
             return this.GetByUrl<IEnumerable<ServiceDeskRequestDTO>>($"{this.serviceDeskConfiguration.ApiUrl}{currentRequestsUrl}{username}", cancellationToken);
         }
 
-        public Task<IEnumerable<ServiceDeskRequestPriorityDTO>> GetPriorities()
+        public Task<IEnumerable<ServiceDeskRequestPriorityDTO>> GetPriorities(CancellationToken cancellationToken)
         {
             return Task.FromResult(this.priorities);
         }

@@ -12,6 +12,6 @@
 
         Task<IEnumerable<ServiceDeskRequestDTO>> GetCurrentRequests(string username, CancellationToken cancellationToken);
 
-        Task<IEnumerable<ServiceDeskRequestPriorityDTO>> GetPriorities();
+        Task<IEnumerable<ServiceDeskRequestPriorityDTO>> GetPriorities(CancellationToken cancellationToken);
     }
 }
