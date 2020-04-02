@@ -62,10 +62,7 @@
         {
             var httpRequest = new HttpRequestMessage(HttpMethod.Get, url);
 
-            foreach (var header in this.serviceDeskConfiguration.Headers)
-            {
-                httpRequest.Headers.Add(header.Key, header.Value);
-            }
+            httpRequest.Headers.Add("x-api-key", this.serviceDeskConfiguration.ApiKey);
 
             var client = this.clientFactory.CreateClient();
 
