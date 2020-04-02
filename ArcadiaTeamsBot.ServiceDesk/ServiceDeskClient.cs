@@ -58,7 +58,7 @@
             return Task.FromResult(this.priorities);
         }
 
-        public async Task<T> GetByUrl<T>(string url, CancellationToken cancellationToken)
+        private async Task<T> GetByUrl<T>(string url, CancellationToken cancellationToken)
         {
             var httpRequest = new HttpRequestMessage(HttpMethod.Get, url);
 
