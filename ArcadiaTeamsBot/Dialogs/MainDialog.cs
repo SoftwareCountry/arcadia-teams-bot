@@ -21,7 +21,6 @@
                 RequestStep,
             }));
 
-            AddDialog(new ConfirmPrompt(nameof(ConfirmPrompt)));
             InitialDialogId = nameof(WaterfallDialog);
         }
 

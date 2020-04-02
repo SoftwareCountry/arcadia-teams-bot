@@ -17,7 +17,6 @@
                 InfoStep,
             }));
 
-            AddDialog(new TextPrompt(nameof(TextPrompt)));
             InitialDialogId = nameof(WaterfallDialog);
         }
 
