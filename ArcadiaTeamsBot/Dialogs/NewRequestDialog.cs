@@ -8,8 +8,6 @@
     using Microsoft.Bot.Builder.Dialogs;
     using Microsoft.Bot.Schema;
 
-    using Cards;
-
     public class NewRequestDialog : ComponentDialog
     {
         public NewRequestDialog() : base(nameof(NewRequestDialog))
@@ -25,12 +23,22 @@
 
         private static async Task<DialogTurnResult> InfoStep(WaterfallStepContext stepContext, CancellationToken cancellationToken)
         {
-            var attachments = new List<Attachment>();
-            var reply = MessageFactory.Attachment(attachments);
-            reply.Attachments.Add(Cards.GetInfoCard().ToAttachment());
+            var reply = MessageFactory.Attachment(new List<Attachment>());
+            reply.Attachments.Add(GetInfoCard().ToAttachment());
+
             await stepContext.Context.SendActivityAsync(reply, cancellationToken);
             await stepContext.Context.SendActivityAsync(MessageFactory.Text("Type anything to continue."), cancellationToken);
+
             return await stepContext.EndDialogAsync(cancellationToken: cancellationToken);
+        }
+
+        public static HeroCard GetInfoCard()
+        {
+            var infoCard = new HeroCard
+            {
+                Title = "In Development",
+            };
+            return infoCard;
         }
     }
 }

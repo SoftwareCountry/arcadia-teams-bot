@@ -1,19 +1,20 @@
 ﻿namespace ArcadiaTeamsBot.Infrastructure
 {
-    using Microsoft.Bot.Builder;
-    using Microsoft.Bot.Schema;
-    using Microsoft.Bot.Builder.Dialogs;
-
+    using System;
     using System.Collections.Generic;
-    using System.Threading.Tasks;
     using System.Threading;
+    using System.Threading.Tasks;
+
+    using Microsoft.Bot.Builder;
+    using Microsoft.Bot.Builder.Dialogs;
+    using Microsoft.Bot.Schema;
 
     public class Bot<T> : ActivityHandler where T : Dialog
     {
         protected readonly Dialog Dialog;
         protected readonly BotState ConversationState;
 
-        public const string WelcomeText = @" You can create a new request or view opened requests.";
+        private const string WelcomeText = "Welcome to ArcadiaBot, {0}.  You can create a new request or view opened requests.";
 
         public Bot(ConversationState conversationState, T dialog)
         {
@@ -39,7 +40,7 @@
                 if (member.Id != turnContext.Activity.Recipient.Id)
                 {
                     await turnContext.SendActivityAsync(
-                        $"Welcome to ArcadiaBot, {member.Name}. {WelcomeText}",
+                        String.Format(WelcomeText, member.Name),
                         cancellationToken: cancellationToken);
                 }
             }

@@ -8,8 +8,6 @@
     using Microsoft.Bot.Builder.Dialogs;
     using Microsoft.Bot.Schema;
 
-    using Cards;
-
     public class OpenedRequestsDialog : ComponentDialog
     {
         public OpenedRequestsDialog() : base(nameof(OpenedRequestsDialog))
@@ -26,10 +24,21 @@
         private static async Task<DialogTurnResult> TypeStep(WaterfallStepContext stepContext, CancellationToken cancellationToken)
         {
             var reply = MessageFactory.Attachment(new List<Attachment>());
-            reply.Attachments.Add(Cards.GetInfoCard().ToAttachment());
+            reply.Attachments.Add(GetInfoCard().ToAttachment());
+
             await stepContext.Context.SendActivityAsync(reply, cancellationToken);
             await stepContext.Context.SendActivityAsync(MessageFactory.Text("Type anything to continue."), cancellationToken);
+
             return await stepContext.EndDialogAsync(cancellationToken: cancellationToken);
+        }
+
+        public static HeroCard GetInfoCard()
+        {
+            var infoCard = new HeroCard
+            {
+                Title = "In Development",
+            };
+            return infoCard;
         }
     }
 }
