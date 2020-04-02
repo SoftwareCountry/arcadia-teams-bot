@@ -11,8 +11,8 @@
     [Route("api/messages")]
     public class BotController : ControllerBase
     {
-        private readonly IBotFrameworkHttpAdapter botAdapter;
         private readonly IBot bot;
+        private readonly IBotFrameworkHttpAdapter botAdapter;
 
         public BotController(IBotFrameworkHttpAdapter botAdapter, IBot bot)
         {

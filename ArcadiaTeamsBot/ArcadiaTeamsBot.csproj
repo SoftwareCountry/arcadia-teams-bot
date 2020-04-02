@@ -5,8 +5,14 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" Version="8.0.0" />
     <PackageReference Include="Microsoft.Bot.Builder.Dialogs" Version="4.8.0" />
     <PackageReference Include="Microsoft.Bot.Builder.Integration.AspNet.Core" Version="4.7.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\ArcadiaTeamsBot.CQRS\ArcadiaTeamsBot.CQRS.csproj" />
+    <ProjectReference Include="..\ArcadiaTeamsBot.ServiceDesk\ArcadiaTeamsBot.ServiceDesk.csproj" />
   </ItemGroup>
 
 </Project>
