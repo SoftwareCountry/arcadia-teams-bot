@@ -15,7 +15,7 @@
 
         public const string WelcomeText = @" You can create a new request or view opened requests.";
 
-        public Bot(ConversationState conversationState,  T dialog)
+        public Bot(ConversationState conversationState, T dialog)
         {
             ConversationState = conversationState;
             Dialog = dialog;

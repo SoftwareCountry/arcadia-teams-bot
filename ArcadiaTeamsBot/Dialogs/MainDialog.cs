@@ -23,7 +23,6 @@
                 RequestStep,
             }));
 
-            AddDialog(new ChoicePrompt(nameof(ChoicePrompt)));
             AddDialog(new ConfirmPrompt(nameof(ConfirmPrompt)));
             InitialDialogId = nameof(WaterfallDialog);
         }
