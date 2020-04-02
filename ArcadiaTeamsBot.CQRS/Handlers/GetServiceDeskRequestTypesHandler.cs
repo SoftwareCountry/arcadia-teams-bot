@@ -19,10 +19,9 @@
             this.serviceDeskClient = serviceDeskClient;
         }
 
-        public Task<IEnumerable<ServiceDeskRequestTypeDTO>> Handle(GetServiceDeskRequestTypesQuery request,
-            CancellationToken cancellationToken)
+        public Task<IEnumerable<ServiceDeskRequestTypeDTO>> Handle(GetServiceDeskRequestTypesQuery request, CancellationToken cancellationToken)
         {
-            return serviceDeskClient.GetRequestTypes(cancellationToken);
+            return this.serviceDeskClient.GetRequestTypes(cancellationToken);
         }
     }
 }
