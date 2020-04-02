@@ -13,6 +13,8 @@
         protected readonly Dialog Dialog;
         protected readonly BotState ConversationState;
 
+        public const string WelcomeText = @" You can create a new request or view opened requests.";
+
         public Bot(ConversationState conversationState,  T dialog)
         {
             ConversationState = conversationState;
@@ -37,7 +39,7 @@
                 if (member.Id != turnContext.Activity.Recipient.Id)
                 {
                     await turnContext.SendActivityAsync(
-                        $"Welcome to ArcadiaBot, {member.Name}.",
+                        $"Welcome to ArcadiaBot, {member.Name}. {WelcomeText}",
                         cancellationToken: cancellationToken);
                 }
             }

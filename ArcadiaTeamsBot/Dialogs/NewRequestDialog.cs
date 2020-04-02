@@ -6,7 +6,9 @@
 
     using Microsoft.Bot.Builder;
     using Microsoft.Bot.Builder.Dialogs;
-    using Microsoft.Bot.Builder.Dialogs.Choices;
+    using Microsoft.Bot.Schema;
+
+    using Cards;
 
     public class NewRequestDialog : ComponentDialog
     {
@@ -14,34 +16,20 @@
         {
             AddDialog(new WaterfallDialog(nameof(WaterfallDialog), new WaterfallStep[]
             {
-                TypeStep,
-                AnotherSteps,
+                InfoStep,
             }));
 
             AddDialog(new TextPrompt(nameof(TextPrompt)));
-            AddDialog(new ChoicePrompt(nameof(ChoicePrompt)));
             InitialDialogId = nameof(WaterfallDialog);
         }
 
-        private static async Task<DialogTurnResult> TypeStep(WaterfallStepContext stepContext, CancellationToken cancellationToken)
+        private static async Task<DialogTurnResult> InfoStep(WaterfallStepContext stepContext, CancellationToken cancellationToken)
         {
-            return await stepContext.PromptAsync(nameof(ChoicePrompt),
-                new PromptOptions
-                {
-                    Prompt = MessageFactory.Text("What request do you want to create?"),
-                    //types from serviceDesk
-                    Choices = ChoiceFactory.ToChoices(new List<string> { "transport", "ndfl" }),
-                }, cancellationToken);
-        }
-
-        private static async Task<DialogTurnResult> AnotherSteps(WaterfallStepContext stepContext, CancellationToken cancellationToken)
-        {
-            stepContext.Values["Type"] = ((FoundChoice)stepContext.Result).Value;
-            await stepContext.PromptAsync(nameof(TextPrompt),
-                new PromptOptions
-                {
-                    Prompt = MessageFactory.Text("another questions "),
-                }, cancellationToken);
+            var attachments = new List<Attachment>();
+            var reply = MessageFactory.Attachment(attachments);
+            reply.Attachments.Add(Cards.GetInfoCard().ToAttachment());
+            await stepContext.Context.SendActivityAsync(reply, cancellationToken);
+            await stepContext.Context.SendActivityAsync(MessageFactory.Text("Type anything to continue."), cancellationToken);
             return await stepContext.EndDialogAsync(cancellationToken: cancellationToken);
         }
     }
