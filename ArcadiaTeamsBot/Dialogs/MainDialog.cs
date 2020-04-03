@@ -15,17 +15,17 @@
 
         public MainDialog() : base(nameof(MainDialog))
         {
-            AddDialog(new NewRequestDialog());
-            AddDialog(new OpenedRequestsDialog());
+            this.AddDialog(new NewRequestDialog());
+            this.AddDialog(new OpenedRequestsDialog());
 
-            AddDialog(new WaterfallDialog(nameof(WaterfallDialog), new WaterfallStep[]
+            this.AddDialog(new WaterfallDialog(nameof(WaterfallDialog), new WaterfallStep[]
             {
                 ChoiceStep,
                 RequestStep,
             }));
 
-            AddDialog(new TextPrompt(nameof(TextPrompt)));
-            InitialDialogId = nameof(WaterfallDialog);
+            this.AddDialog(new TextPrompt(nameof(TextPrompt)));
+            this.InitialDialogId = nameof(WaterfallDialog);
         }
 
         private static async Task<DialogTurnResult> ChoiceStep(WaterfallStepContext stepContext, CancellationToken cancellationToken)

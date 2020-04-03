@@ -12,12 +12,12 @@
     {
         public NewRequestDialog() : base(nameof(NewRequestDialog))
         {
-            AddDialog(new WaterfallDialog(nameof(WaterfallDialog), new WaterfallStep[]
+            this.AddDialog(new WaterfallDialog(nameof(WaterfallDialog), new WaterfallStep[]
             {
                 InfoStep,
             }));
 
-            InitialDialogId = nameof(WaterfallDialog);
+            this.InitialDialogId = nameof(WaterfallDialog);
         }
 
         private static async Task<DialogTurnResult> InfoStep(WaterfallStepContext stepContext, CancellationToken cancellationToken)
