@@ -10,8 +10,8 @@
 
     public class MainDialog : ComponentDialog
     {
-        private const string newRequest = "New request";
-        private const string openedRequests = "See current requests";
+        private const string NewRequest = "New request";
+        private const string OpenedRequests = "See current requests";
 
         public MainDialog() : base(nameof(MainDialog))
         {
@@ -45,25 +45,25 @@
         {
             switch ((string)stepContext.Result)
             {
-                case newRequest:
+                case NewRequest:
                     return await stepContext.BeginDialogAsync(nameof(NewRequestDialog), null, cancellationToken);
-                case openedRequests:
+                case OpenedRequests:
                     return await stepContext.BeginDialogAsync(nameof(OpenedRequestsDialog), null, cancellationToken);
                 default:
-                    return await stepContext.NextAsync(cancellationToken: cancellationToken);
+                    return await stepContext.ReplaceDialogAsync(nameof(MainDialog), null, cancellationToken);
             }
         }
 
         public static HeroCard GetChoiceCard()
         {
-            var choiceCard = new HeroCard()
+            var choiceCard = new HeroCard
             {
                 Title = " You can create a new request or view opened requests.",
                 Subtitle = "What do you want to do?",
                 Buttons = new List<CardAction>
                 {
-                    new CardAction(ActionTypes.ImBack, newRequest, value: newRequest),
-                    new CardAction(ActionTypes.ImBack, openedRequests, value: openedRequests),
+                    new CardAction(ActionTypes.ImBack, NewRequest, value: NewRequest),
+                    new CardAction(ActionTypes.ImBack, OpenedRequests, value: OpenedRequests),
                 },
             };
             return choiceCard;

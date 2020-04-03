@@ -10,13 +10,16 @@
 
     public class OpenedRequestsDialog : ComponentDialog
     {
+        private const string Back = "Back";
+
         public OpenedRequestsDialog() : base(nameof(OpenedRequestsDialog))
         {
             this.AddDialog(new WaterfallDialog(nameof(WaterfallDialog), new WaterfallStep[]
             {
                 TypeStep,
+                EndStep,
             }));
-
+            this.AddDialog(new TextPrompt(nameof(TextPrompt)));
             this.InitialDialogId = nameof(WaterfallDialog);
         }
 
@@ -26,11 +29,20 @@
             {
                 GetInfoCard().ToAttachment()
             };
+            return await stepContext.PromptAsync(nameof(TextPrompt),
+                new PromptOptions
+                {
+                    Prompt = (Activity)MessageFactory.Attachment(attachments),
+                }, cancellationToken);
+        }
 
-            var reply = MessageFactory.Attachment(attachments);
-            await stepContext.Context.SendActivityAsync(reply, cancellationToken);
-
-            return await stepContext.EndDialogAsync(cancellationToken: cancellationToken);
+        private static async Task<DialogTurnResult> EndStep(WaterfallStepContext stepContext, CancellationToken cancellationToken)
+        {
+            if ((string)stepContext.Result == Back)
+            {
+                return await stepContext.BeginDialogAsync(nameof(MainDialog), null, cancellationToken);
+            }
+            return await stepContext.ContinueDialogAsync(cancellationToken: cancellationToken);
         }
 
         public static HeroCard GetInfoCard()
@@ -40,7 +52,7 @@
                 Title = "In Development",
                 Buttons = new List<CardAction>
                 {
-                    new CardAction(ActionTypes.ImBack, "Back", value: "Back"),
+                    new CardAction(ActionTypes.ImBack, Back, value: Back),
                 },
             };
 

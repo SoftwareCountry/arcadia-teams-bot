@@ -10,7 +10,7 @@
 
     public class Bot<T> : ActivityHandler where T : Dialog
     {
-        private const string WelcomeText = "Welcome to ArcadiaBot, {0}. Write something to continue";
+        private const string WelcomeText = "Welcome to ArcadiaBot, {0}. Type something to continue";
 
         protected readonly Dialog dialog;
         protected readonly ConversationState conversationState;
