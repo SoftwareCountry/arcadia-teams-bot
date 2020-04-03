@@ -21,31 +21,42 @@
                 RequestStep,
             }));
 
+            AddDialog(new TextPrompt(nameof(TextPrompt)));
             InitialDialogId = nameof(WaterfallDialog);
         }
 
         private static async Task<DialogTurnResult> ChoiceStep(WaterfallStepContext stepContext, CancellationToken cancellationToken)
         {
-            var reply = MessageFactory.Attachment(new List<Attachment>());
-            reply.Attachments.Add(GetChoiceCard().ToAttachment());
-            await stepContext.Context.SendActivityAsync(reply, cancellationToken);
-            return await stepContext.ContinueDialogAsync(cancellationToken);
+            var attachments = new []
+            {
+                GetChoiceCard().ToAttachment()
+            };
+            return await stepContext.PromptAsync(nameof(TextPrompt),
+                new PromptOptions
+                {
+                    Prompt = (Activity)MessageFactory.Attachment(attachments),
+                }, cancellationToken);
         }
 
         private static async Task<DialogTurnResult> RequestStep(WaterfallStepContext stepContext, CancellationToken cancellationToken)
         {
-            if ((string)stepContext.Result == "New request")
+            switch ((string)stepContext.Result)
             {
-                return await stepContext.BeginDialogAsync(nameof(NewRequestDialog), null, cancellationToken);
+                case "New request":
+                    return await stepContext.BeginDialogAsync(nameof(NewRequestDialog), null, cancellationToken);
+                case "See current requests":
+                    return await stepContext.BeginDialogAsync(nameof(OpenedRequestsDialog), null, cancellationToken);
+                default:
+                    return await stepContext.NextAsync(cancellationToken: cancellationToken);
             }
-            return await stepContext.BeginDialogAsync(nameof(OpenedRequestsDialog), null, cancellationToken);
         }
 
         public static HeroCard GetChoiceCard()
         {
-            var choiceCard = new HeroCard
+            var choiceCard = new HeroCard()
             {
-                Title = "What do you want to do?",
+                Title = " You can create a new request or view opened requests.",
+                Subtitle = "What do you want to do?",
                 Buttons = new List<CardAction>
                 {
                     new CardAction(ActionTypes.ImBack, "New request", value: "New request"),

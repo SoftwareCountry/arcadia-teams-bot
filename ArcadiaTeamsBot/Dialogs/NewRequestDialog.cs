@@ -26,17 +26,22 @@
             reply.Attachments.Add(GetInfoCard().ToAttachment());
 
             await stepContext.Context.SendActivityAsync(reply, cancellationToken);
-            await stepContext.Context.SendActivityAsync(MessageFactory.Text("Type anything to continue."), cancellationToken);
 
             return await stepContext.EndDialogAsync(cancellationToken: cancellationToken);
         }
+
 
         public static HeroCard GetInfoCard()
         {
             var infoCard = new HeroCard
             {
-                Title = "In Development",
+                Title = "New In Development",
+                Buttons = new List<CardAction>
+                {
+                    new CardAction(ActionTypes.ImBack, "Back", value: "Back"),
+                },
             };
+
             return infoCard;
         }
     }
