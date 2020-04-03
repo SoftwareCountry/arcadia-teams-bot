@@ -22,9 +22,12 @@
 
         private static async Task<DialogTurnResult> TypeStep(WaterfallStepContext stepContext, CancellationToken cancellationToken)
         {
-            var reply = MessageFactory.Attachment(new List<Attachment>());
-            reply.Attachments.Add(GetInfoCard().ToAttachment());
+            var attachments = new[]
+            {
+                GetInfoCard().ToAttachment()
+            };
 
+            var reply = MessageFactory.Attachment(attachments);
             await stepContext.Context.SendActivityAsync(reply, cancellationToken);
 
             return await stepContext.EndDialogAsync(cancellationToken: cancellationToken);

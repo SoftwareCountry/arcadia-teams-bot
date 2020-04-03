@@ -10,6 +10,9 @@
 
     public class MainDialog : ComponentDialog
     {
+        private const string newRequest = "New request";
+        private const string openedRequests = "See current requests";
+
         public MainDialog() : base(nameof(MainDialog))
         {
             AddDialog(new NewRequestDialog());
@@ -27,7 +30,7 @@
 
         private static async Task<DialogTurnResult> ChoiceStep(WaterfallStepContext stepContext, CancellationToken cancellationToken)
         {
-            var attachments = new []
+            var attachments = new[]
             {
                 GetChoiceCard().ToAttachment()
             };
@@ -42,9 +45,9 @@
         {
             switch ((string)stepContext.Result)
             {
-                case "New request":
+                case newRequest:
                     return await stepContext.BeginDialogAsync(nameof(NewRequestDialog), null, cancellationToken);
-                case "See current requests":
+                case openedRequests:
                     return await stepContext.BeginDialogAsync(nameof(OpenedRequestsDialog), null, cancellationToken);
                 default:
                     return await stepContext.NextAsync(cancellationToken: cancellationToken);
@@ -59,8 +62,8 @@
                 Subtitle = "What do you want to do?",
                 Buttons = new List<CardAction>
                 {
-                    new CardAction(ActionTypes.ImBack, "New request", value: "New request"),
-                    new CardAction(ActionTypes.ImBack, "See current requests", value: "See current requests"),
+                    new CardAction(ActionTypes.ImBack, "New request", value: newRequest),
+                    new CardAction(ActionTypes.ImBack, "See current requests", value: openedRequests),
                 },
             };
             return choiceCard;
