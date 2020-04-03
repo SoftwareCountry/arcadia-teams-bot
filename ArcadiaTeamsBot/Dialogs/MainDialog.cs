@@ -62,8 +62,8 @@
                 Subtitle = "What do you want to do?",
                 Buttons = new List<CardAction>
                 {
-                    new CardAction(ActionTypes.ImBack, "New request", value: newRequest),
-                    new CardAction(ActionTypes.ImBack, "See current requests", value: openedRequests),
+                    new CardAction(ActionTypes.ImBack, newRequest, value: newRequest),
+                    new CardAction(ActionTypes.ImBack, openedRequests, value: openedRequests),
                 },
             };
             return choiceCard;
