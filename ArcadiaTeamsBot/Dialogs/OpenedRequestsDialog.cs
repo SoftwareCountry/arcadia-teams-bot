@@ -17,7 +17,7 @@
     public class OpenedRequestsDialog : ComponentDialog
     {
         private const string Back = "Back";
-        const string username = "vyacheslav.lasukov@arcadia.spb.ru";
+        const string Username = "vyacheslav.lasukov@arcadia.spb.ru";
         private readonly IMediator mediator;
 
         public OpenedRequestsDialog(IMediator mediator) : base(nameof(OpenedRequestsDialog))
@@ -37,14 +37,14 @@
 
         private async Task<DialogTurnResult> InfoStep(WaterfallStepContext stepContext, CancellationToken cancellationToken)
         {
-            var getRequestsQuery = new GetCurrentServiceDeskRequestsQuery(username);
+            var getRequestsQuery = new GetCurrentServiceDeskRequestsQuery(Username);
             var openedRequest = await this.mediator.Send(getRequestsQuery, cancellationToken);
             var serviceDeskRequests = openedRequest.ToList();
 
             var heroCardList = new List<Attachment>();
             for (var i = 0; i < serviceDeskRequests.Count(); i++)
             {
-                var heroCard = OpenedRequests(
+                var heroCard = OpenedRequestsCard(
                     serviceDeskRequests[i].RequestNumber,
                     serviceDeskRequests[i].Title,
                     serviceDeskRequests[i].Created,
@@ -70,7 +70,7 @@
             return await stepContext.ContinueDialogAsync(cancellationToken: cancellationToken);
         }
 
-        public static HeroCard OpenedRequests(string requestNumber, string title, DateTime created, string statusName, string executorFullName)
+        public static HeroCard OpenedRequestsCard(string requestNumber, string title, DateTime created, string statusName, string executorFullName)
         {
             var heroCard = new HeroCard
             {
