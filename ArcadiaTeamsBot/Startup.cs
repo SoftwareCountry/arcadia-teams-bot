@@ -1,10 +1,14 @@
 namespace ArcadiaTeamsBot
 {
+    using System.Collections.Generic;
+
+    using ArcadiaTeamsBot.CQRS.Abstractions;
     using ArcadiaTeamsBot.CQRS.Handlers;
     using ArcadiaTeamsBot.Dialogs;
     using ArcadiaTeamsBot.Infrastructure;
     using ArcadiaTeamsBot.ServiceDesk;
     using ArcadiaTeamsBot.ServiceDesk.Abstractions;
+    using ArcadiaTeamsBot.ServiceDesk.Abstractions.DTOs;
 
     using MediatR;
 
@@ -37,8 +41,8 @@ namespace ArcadiaTeamsBot
             services.AddSingleton<IBotFrameworkHttpAdapter, BotAdapterWithErrorHandling>();
             services.AddSingleton<IStorage, MemoryStorage>();
             services.AddSingleton<ConversationState>();
-            services.AddSingleton<MainDialog>();
-            services.AddTransient<IBot, Bot<MainDialog>>();
+            services.AddScoped<MainDialog>();
+            services.AddScoped<IBot, Bot<MainDialog>>();
             services.AddSingleton(this.serviceDeskConfiguration);
         }
 

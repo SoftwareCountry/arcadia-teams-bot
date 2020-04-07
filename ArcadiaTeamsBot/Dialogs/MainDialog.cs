@@ -4,6 +4,8 @@
     using System.Threading;
     using System.Threading.Tasks;
 
+    using MediatR;
+
     using Microsoft.Bot.Builder;
     using Microsoft.Bot.Builder.Dialogs;
     using Microsoft.Bot.Schema;
@@ -13,10 +15,10 @@
         private const string NewRequest = "New request";
         private const string OpenedRequests = "See current requests";
 
-        public MainDialog() : base(nameof(MainDialog))
+        public MainDialog(IMediator mediator) : base(nameof(MainDialog))
         {
             this.AddDialog(new NewRequestDialog());
-            this.AddDialog(new OpenedRequestsDialog());
+            this.AddDialog(new OpenedRequestsDialog(mediator));
 
             this.AddDialog(new WaterfallDialog(nameof(WaterfallDialog), new WaterfallStep[]
             {
