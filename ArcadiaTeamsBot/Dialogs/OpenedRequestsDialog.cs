@@ -31,8 +31,6 @@
             }));
             this.AddDialog(new TextPrompt(nameof(TextPrompt)));
             this.InitialDialogId = nameof(WaterfallDialog);
-
-            this.AddDialog(new ChoicePrompt(nameof(ChoicePrompt)));
         }
 
         private async Task<DialogTurnResult> InfoStep(WaterfallStepContext stepContext, CancellationToken cancellationToken)
