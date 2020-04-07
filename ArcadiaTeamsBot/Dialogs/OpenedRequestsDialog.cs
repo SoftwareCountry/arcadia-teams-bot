@@ -1,5 +1,6 @@
 ﻿namespace ArcadiaTeamsBot.Dialogs
 {
+    using System;
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading;
@@ -11,7 +12,6 @@
 
     using Microsoft.Bot.Builder;
     using Microsoft.Bot.Builder.Dialogs;
-    using Microsoft.Bot.Builder.Dialogs.Choices;
     using Microsoft.Bot.Schema;
 
     public class OpenedRequestsDialog : ComponentDialog
@@ -41,35 +41,24 @@
             var openedRequest = await this.mediator.Send(getRequestsQuery, cancellationToken);
             var serviceDeskRequests = openedRequest.ToList();
 
-            var attachments = new List<Attachment>();
-            var reply = MessageFactory.Attachment(attachments);
-
-            var heroCardList = new List<HeroCard>();
-            reply.AttachmentLayout = AttachmentLayoutTypes.Carousel;
+            var heroCardList = new List<Attachment>();
             for (var i = 0; i < serviceDeskRequests.Count(); i++)
             {
-                var heroCard = new HeroCard
-                {
-                    Title = serviceDeskRequests[i].RequestNumber + " " +
-                            serviceDeskRequests[i].Created.ToShortDateString(),
-                    Subtitle = serviceDeskRequests[i].ExecutorFullName,
-                    Text = serviceDeskRequests[i].StatusName +  ": " + serviceDeskRequests[i].Title,
-                };
+                var heroCard = OpenedRequests(
+                    serviceDeskRequests[i].RequestNumber,
+                    serviceDeskRequests[i].Title,
+                    serviceDeskRequests[i].Created,
+                    serviceDeskRequests[i].StatusName,
+                    serviceDeskRequests[i].ExecutorFullName);
 
-                reply.Attachments.Add(heroCard.ToAttachment());
+                heroCardList.Add(heroCard.ToAttachment());
             }
-            await stepContext.Context.SendActivityAsync(reply, cancellationToken);
 
-            var backCard = new[]
-            {
-                BackCard().ToAttachment()
-            };
             return await stepContext.PromptAsync(nameof(TextPrompt),
                 new PromptOptions
                 {
-                    Prompt = (Activity)MessageFactory.Attachment(backCard),
+                    Prompt = (Activity)MessageFactory.Carousel(heroCardList),
                 }, cancellationToken);
-
         }
 
         private static async Task<DialogTurnResult> EndStep(WaterfallStepContext stepContext, CancellationToken cancellationToken)
@@ -81,47 +70,21 @@
             return await stepContext.ContinueDialogAsync(cancellationToken: cancellationToken);
         }
 
-        public static HeroCard BackCard()
+        public static HeroCard OpenedRequests(string requestNumber, string title, DateTime created, string statusName, string executorFullName)
         {
-            var backCard = new HeroCard
+            var heroCard = new HeroCard
             {
+                Title = requestNumber + " " +
+                        created.ToShortDateString(),
+                Subtitle = executorFullName,
+                Text = statusName + ": " + title,
                 Buttons = new List<CardAction>
                 {
                     new CardAction(ActionTypes.ImBack, Back, value: Back),
                 },
             };
 
-            return backCard;
-        }
-
-        public async Task<List<HeroCard>> GetOpenedRequests(CancellationToken cancellationToken)
-        {
-            var getRequestsQuery = new GetCurrentServiceDeskRequestsQuery("vyacheslav.lasukov@arcadia.spb.ru");
-            var openedRequest = await this.mediator.Send(getRequestsQuery, cancellationToken);
-            var serviceDeskRequests = openedRequest.ToList();
-
-            var attachments = new List<Attachment>();
-            var reply = MessageFactory.Attachment(attachments);
-
-            var heroCardList = new List<HeroCard>();
-            reply.AttachmentLayout = AttachmentLayoutTypes.Carousel;
-            for (var i = 0; i < serviceDeskRequests.Count(); i++)
-            {
-                var heroCard = new HeroCard
-                {
-                    Title = serviceDeskRequests[i].RequestNumber + " " +
-                            serviceDeskRequests[i].Created.ToShortDateString(),
-                    Subtitle = serviceDeskRequests[i].ExecutorFullName,
-                    Text = serviceDeskRequests[i].StatusName + ": " + serviceDeskRequests[i].Title,
-
-                    Buttons = new List<CardAction>
-                    {
-                        new CardAction(ActionTypes.ImBack, Back, value: Back),
-                    },
-                };
-                heroCardList.Add(heroCard);
-            }
-            return heroCardList;
+            return heroCard;
         }
     }
 }
