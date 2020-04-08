@@ -7,6 +7,7 @@
             this.FieldName = fieldName;
             this.FieldType = fieldType;
         }
+
         public string FieldName { get; set; }
 
         public RequestTypeForUIFieldType FieldType { get; set; }
