@@ -1,4 +1,4 @@
-﻿namespace ArcadiaTeamsBot.ServiceDesk.Requests
+﻿namespace ArcadiaTeamsBot.ServiceDesk.Requests.RequestType
 {
     public class RequestTypeForUIField
     {

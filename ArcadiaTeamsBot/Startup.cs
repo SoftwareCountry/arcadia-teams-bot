@@ -1,11 +1,11 @@
 namespace ArcadiaTeamsBot
 {
-    using System.Collections.Generic;
-
     using ArcadiaTeamsBot.CQRS.Handlers;
     using ArcadiaTeamsBot.Infrastructure;
     using ArcadiaTeamsBot.ServiceDesk;
     using ArcadiaTeamsBot.ServiceDesk.Abstractions;
+    using ArcadiaTeamsBot.ServiceDesk.Requests;
+    using ArcadiaTeamsBot.ServiceDesk.Requests.RequestTypeFactory;
 
     using MediatR;
 
@@ -20,12 +20,12 @@ namespace ArcadiaTeamsBot
     public class Startup
     {
         private readonly ServiceDeskConfiguration serviceDeskConfiguration;
-        private readonly Dictionary<string, string> serviceDeskMappingConfiguration;
+        private readonly RequestTypesMappingConfiguration requestTypesMappingConfiguration;
 
         public Startup(IConfiguration configuration)
         {
             this.serviceDeskConfiguration = configuration.GetSection("ServiceDesk").Get<ServiceDeskConfiguration>();
-            this.serviceDeskMappingConfiguration = configuration.GetSection("ServiceDeskRequestsMapping").Get<Dictionary<string, string>>();
+            this.requestTypesMappingConfiguration = configuration.GetSection("ServiceDeskRequestsMapping").Get<RequestTypesMappingConfiguration>();
         }
 
         public void ConfigureServices(IServiceCollection services)
@@ -40,7 +40,8 @@ namespace ArcadiaTeamsBot
             services.AddTransient<IBot, Bot>();
             services.AddSingleton<IBotFrameworkHttpAdapter, BotAdapterWithErrorHandling>();
             services.AddSingleton(this.serviceDeskConfiguration);
-            services.AddSingleton(this.serviceDeskMappingConfiguration);
+            services.AddSingleton(this.requestTypesMappingConfiguration);
+            services.AddSingleton<IRequestTypeForUIFactory, RequestTypeForUIFactory>();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
