@@ -1,10 +1,11 @@
 ﻿namespace ArcadiaTeamsBot.Dialogs
 {
-    using System;
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
+
+    using AdaptiveCards;
 
     using ArcadiaTeamsBot.CQRS.Abstractions;
 
@@ -39,24 +40,44 @@
             var openedRequest = await this.mediator.Send(getRequestsQuery, cancellationToken);
             var serviceDeskRequests = openedRequest.ToList();
 
-            var heroCardList = new List<Attachment>();
+            var Actions = new List<AdaptiveAction>();
             for (var i = 0; i < serviceDeskRequests.Count(); i++)
             {
-                var heroCard = OpenedRequestsCard(
-                    serviceDeskRequests[i].RequestNumber,
-                    serviceDeskRequests[i].Title,
-                    serviceDeskRequests[i].Created,
-                    serviceDeskRequests[i].StatusName,
-                    serviceDeskRequests[i].ExecutorFullName);
+                if (serviceDeskRequests[i].ExecutorFullName == "")
+                {
+                    serviceDeskRequests[i].ExecutorFullName = "-";
+                }
 
-                heroCardList.Add(heroCard.ToAttachment());
+                var shownCard = new AdaptiveShowCardAction()
+                {
+                    Title = serviceDeskRequests[i].RequestNumber,
+                    Card = new AdaptiveCard()
+                    {
+                        Body = new List<AdaptiveElement>()
+                        {
+                            new AdaptiveTextBlock() { Text = serviceDeskRequests[i].Title, Weight = AdaptiveTextWeight.Bolder, Size = AdaptiveTextSize.Large },
+                            new AdaptiveTextBlock() { Text = serviceDeskRequests[i].StatusName + ": " + serviceDeskRequests[i].Created.ToShortDateString(), Weight = AdaptiveTextWeight.Default, Size = AdaptiveTextSize.Medium },
+                            new AdaptiveTextBlock() { Text = "Executor Name: " + serviceDeskRequests[i].ExecutorFullName, Weight = AdaptiveTextWeight.Normal, Size = AdaptiveTextSize.Default },
+                        }
+                    },
+                };
+
+                Actions.Add(shownCard);
             }
 
-            return await stepContext.PromptAsync(nameof(TextPrompt),
-                new PromptOptions
-                {
-                    Prompt = (Activity)MessageFactory.Carousel(heroCardList),
-                }, cancellationToken);
+            var backAction = new AdaptiveSubmitAction
+            {
+                Title = Back,
+                Data = Back,
+            };
+
+            Actions.Add(backAction);
+
+            var attachment = OpenedRequestsCard(Actions);
+            var reply = MessageFactory.Attachment(attachment);
+
+            await stepContext.Context.SendActivityAsync(reply, cancellationToken);
+            return await stepContext.PromptAsync(nameof(TextPrompt), new PromptOptions { }, cancellationToken);
         }
 
         private static async Task<DialogTurnResult> EndStep(WaterfallStepContext stepContext, CancellationToken cancellationToken)
@@ -65,24 +86,26 @@
             {
                 return await stepContext.BeginDialogAsync(nameof(MainDialog), null, cancellationToken);
             }
-            return await stepContext.ContinueDialogAsync(cancellationToken: cancellationToken);
+            return await stepContext.EndDialogAsync(cancellationToken: cancellationToken);
         }
 
-        public static HeroCard OpenedRequestsCard(string requestNumber, string title, DateTime created, string statusName, string executorFullName)
+        public static Attachment OpenedRequestsCard(List<AdaptiveAction> actions)
         {
-            var heroCard = new HeroCard
+            var card = new AdaptiveCard()
             {
-                Title = requestNumber + " " +
-                        created.ToShortDateString(),
-                Subtitle = executorFullName,
-                Text = statusName + ": " + title,
-                Buttons = new List<CardAction>
+                Body = new List<AdaptiveElement>()
                 {
-                    new CardAction(ActionTypes.ImBack, Back, value: Back),
+                    new AdaptiveTextBlock() { Text = "All your opened requests", Weight = AdaptiveTextWeight.Bolder, Size = AdaptiveTextSize.Large },
                 },
+                Actions = actions,
+            };
+            var attachment = new Attachment()
+            {
+                ContentType = AdaptiveCard.ContentType,
+                Content = card
             };
 
-            return heroCard;
+            return attachment;
         }
     }
 }
