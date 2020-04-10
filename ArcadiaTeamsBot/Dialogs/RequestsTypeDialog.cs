@@ -47,7 +47,6 @@
             var backButton = new CardAction(ActionTypes.ImBack, Back, value: Back);
             Buttons.Add(backButton);
 
-
             var attachments = new[]
             {
                 GetInfoCard(Buttons).ToAttachment()
