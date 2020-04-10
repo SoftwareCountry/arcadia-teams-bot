@@ -1,7 +1,6 @@
 ﻿namespace ArcadiaTeamsBot.Dialogs
 {
     using System.Collections.Generic;
-    using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
 
@@ -38,10 +37,9 @@
         {
             var getRequestsQuery = new GetCurrentServiceDeskRequestsQuery(Username);
             var openedRequest = await this.mediator.Send(getRequestsQuery, cancellationToken);
-            var serviceDeskRequests = openedRequest.ToList();
 
             var Actions = new List<AdaptiveAction>();
-            foreach (var request in serviceDeskRequests)
+            foreach (var request in openedRequest)
             {
                 if (request.ExecutorFullName == "")
                 {
