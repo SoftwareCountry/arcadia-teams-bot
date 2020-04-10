@@ -41,23 +41,23 @@
             var serviceDeskRequests = openedRequest.ToList();
 
             var Actions = new List<AdaptiveAction>();
-            for (var i = 0; i < serviceDeskRequests.Count(); i++)
+            foreach (var request in serviceDeskRequests)
             {
-                if (serviceDeskRequests[i].ExecutorFullName == "")
+                if (request.ExecutorFullName == "")
                 {
-                    serviceDeskRequests[i].ExecutorFullName = "-";
+                    request.ExecutorFullName = "-";
                 }
 
                 var shownCard = new AdaptiveShowCardAction()
                 {
-                    Title = serviceDeskRequests[i].RequestNumber,
+                    Title = request.RequestNumber,
                     Card = new AdaptiveCard()
                     {
                         Body = new List<AdaptiveElement>()
                         {
-                            new AdaptiveTextBlock() { Text = serviceDeskRequests[i].Title, Weight = AdaptiveTextWeight.Bolder, Size = AdaptiveTextSize.Large },
-                            new AdaptiveTextBlock() { Text = serviceDeskRequests[i].StatusName + ": " + serviceDeskRequests[i].Created.ToShortDateString(), Weight = AdaptiveTextWeight.Default, Size = AdaptiveTextSize.Medium },
-                            new AdaptiveTextBlock() { Text = "Executor Name: " + serviceDeskRequests[i].ExecutorFullName, Weight = AdaptiveTextWeight.Normal, Size = AdaptiveTextSize.Default },
+                            new AdaptiveTextBlock() { Text = request.Title, Weight = AdaptiveTextWeight.Bolder, Size = AdaptiveTextSize.Large },
+                            new AdaptiveTextBlock() { Text = request.StatusName + ": " + request.Created.ToShortDateString(), Weight = AdaptiveTextWeight.Default, Size = AdaptiveTextSize.Medium },
+                            new AdaptiveTextBlock() { Text = "Executor Name: " + request.ExecutorFullName, Weight = AdaptiveTextWeight.Normal, Size = AdaptiveTextSize.Default },
                         }
                     },
                 };
