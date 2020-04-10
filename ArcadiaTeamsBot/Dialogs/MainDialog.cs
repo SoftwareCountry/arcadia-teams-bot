@@ -17,7 +17,7 @@
 
         public MainDialog(IMediator mediator) : base(nameof(MainDialog))
         {
-            this.AddDialog(new NewRequestDialog());
+            this.AddDialog(new RequestsTypeDialog(mediator));
             this.AddDialog(new OpenedRequestsDialog(mediator));
 
             this.AddDialog(new WaterfallDialog(nameof(WaterfallDialog), new WaterfallStep[]
@@ -48,7 +48,7 @@
             switch ((string)stepContext.Result)
             {
                 case NewRequest:
-                    return await stepContext.BeginDialogAsync(nameof(NewRequestDialog), null, cancellationToken);
+                    return await stepContext.BeginDialogAsync(nameof(RequestsTypeDialog), null, cancellationToken);
                 case OpenedRequests:
                     return await stepContext.BeginDialogAsync(nameof(OpenedRequestsDialog), null, cancellationToken);
                 default:
