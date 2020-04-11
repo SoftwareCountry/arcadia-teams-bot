@@ -13,6 +13,7 @@
     {
         private const string requestTypesUrl = "intra/requestTypes";
         private const string currentRequestsUrl = "intra/requests?username=";
+        private const string createNewRequestUrl = "intra/request";
 
         private readonly IHttpClientFactory clientFactory;
 
@@ -56,6 +57,24 @@
         public Task<IEnumerable<ServiceDeskRequestPriorityDTO>> GetPriorities(CancellationToken cancellationToken)
         {
             return Task.FromResult(this.priorities);
+        }
+
+        public async Task CreateNewRequest(RequestForCreationDTO requestForCreationDTO, CancellationToken cancellationToken)
+        {
+            var httpRequest = new HttpRequestMessage(HttpMethod.Put, $"{this.serviceDeskConfiguration.ApiUrl}{createNewRequestUrl}");
+
+            httpRequest.Headers.Add("x-api-key", this.serviceDeskConfiguration.ApiKey);
+
+            var options = new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true
+            };
+
+            httpRequest.Content = new StringContent(JsonSerializer.Serialize(requestForCreationDTO, options));
+            httpRequest.Content.Headers.Remove("Content-Type");
+            httpRequest.Content.Headers.Add("Content-Type", "application/json");
+
+            await this.clientFactory.CreateClient().SendAsync(httpRequest, cancellationToken);
         }
 
         private async Task<T> GetByUrl<T>(string url, CancellationToken cancellationToken)
