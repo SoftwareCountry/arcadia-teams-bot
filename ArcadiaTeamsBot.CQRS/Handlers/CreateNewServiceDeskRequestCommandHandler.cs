@@ -8,11 +8,11 @@
 
     using MediatR;
 
-    internal class CreateNewServiceDeskRequestHandler : IRequestHandler<CreateNewServiceDeskRequestCommand>
+    internal class CreateNewServiceDeskRequestCommandHandler : IRequestHandler<CreateNewServiceDeskRequestCommand>
     {
         private readonly IServiceDeskClient serviceDeskClient;
 
-        public CreateNewServiceDeskRequestHandler(IServiceDeskClient serviceDeskClient)
+        public CreateNewServiceDeskRequestCommandHandler(IServiceDeskClient serviceDeskClient)
         {
             this.serviceDeskClient = serviceDeskClient;
         }

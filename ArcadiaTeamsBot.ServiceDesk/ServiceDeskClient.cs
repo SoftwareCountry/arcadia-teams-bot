@@ -59,7 +59,7 @@
             return Task.FromResult(this.priorities);
         }
 
-        public async Task CreateNewRequest(RequestForCreationDTO requestForCreationDTO, CancellationToken cancellationToken)
+        public async Task CreateNewRequest(CreateRequestDTO requestForCreationDTO, CancellationToken cancellationToken)
         {
             var httpRequest = new HttpRequestMessage(HttpMethod.Put, $"{this.serviceDeskConfiguration.ApiUrl}{createNewRequestUrl}");
 

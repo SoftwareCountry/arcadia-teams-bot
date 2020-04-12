@@ -3,13 +3,13 @@
     using System;
     using System.Collections.Generic;
 
-    public class RequestForCreationDTO
+    public class CreateRequestDTO
     {
         public string Title { get; set; }
 
         public string Description { get; set; }
 
-        public RequestTypeForCreation Type { get; set; }
+        public CreateRequestTypeDTO Type { get; set; }
 
         public int? PriorityId { get; set; }
 
