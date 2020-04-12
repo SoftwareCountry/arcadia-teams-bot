@@ -24,11 +24,8 @@
             {
                 var fieldName = fieldFromDTO.FieldName;
 
-                if (requestTypeFromConfig == null ||
-                    !requestTypeFromConfig.TryGetValue(fieldName, out var fieldType))
-                {
-                    fieldType = fieldFromDTO.Items != null ? RequestTypeForUIFieldType.Select : RequestTypeForUIFieldType.String;
-                }
+                var fieldType = requestTypeFromConfig?.ContainsKey(fieldName) == true ? requestTypeFromConfig[fieldName]
+                    : fieldFromDTO.Items != null ? RequestTypeForUIFieldType.Select : RequestTypeForUIFieldType.String;
 
                 requestTypeForUIFields.Add(new RequestTypeForUIField(fieldName, fieldType));
             }
