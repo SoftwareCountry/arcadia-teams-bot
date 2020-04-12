@@ -4,6 +4,6 @@
 
     public interface IRequestTypeForUI
     {
-        List<RequestTypeForUIField> RequestTypeForUIFields { get; }
+        IEnumerable<RequestTypeForUIField> RequestTypeForUIFields { get; }
     }
 }
