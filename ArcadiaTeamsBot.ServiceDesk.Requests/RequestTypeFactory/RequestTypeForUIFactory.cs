@@ -1,6 +1,5 @@
 ﻿namespace ArcadiaTeamsBot.ServiceDesk.Requests.RequestTypeFactory
 {
-    using System;
     using System.Collections.Generic;
 
     using ArcadiaTeamsBot.ServiceDesk.Abstractions.DTOs;
@@ -26,8 +25,7 @@
                 var fieldName = fieldFromDTO.FieldName;
 
                 if (requestTypeFromConfig == null ||
-                    !requestTypeFromConfig.TryGetValue(fieldName, out var fieldTypeNameFromConfig) ||
-                    !Enum.TryParse(fieldTypeNameFromConfig, out RequestTypeForUIFieldType fieldType))
+                    !requestTypeFromConfig.TryGetValue(fieldName, out var fieldType))
                 {
                     fieldType = fieldFromDTO.Items != null ? RequestTypeForUIFieldType.Select : RequestTypeForUIFieldType.String;
                 }
