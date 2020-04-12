@@ -2,7 +2,9 @@
 {
     using System.Collections.Generic;
 
-    public class RequestTypesMappingConfiguration : Dictionary<string, Dictionary<string, string>>
+    using ArcadiaTeamsBot.ServiceDesk.Requests.RequestType;
+
+    public class RequestTypesMappingConfiguration : Dictionary<string, Dictionary<string, RequestTypeForUIFieldType>>
     {
     }
 }
