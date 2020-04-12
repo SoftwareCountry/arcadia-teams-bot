@@ -65,12 +65,7 @@
 
             httpRequest.Headers.Add("x-api-key", this.serviceDeskConfiguration.ApiKey);
 
-            var options = new JsonSerializerOptions
-            {
-                PropertyNameCaseInsensitive = true
-            };
-
-            httpRequest.Content = new StringContent(JsonSerializer.Serialize(requestForCreationDTO, options));
+            httpRequest.Content = new StringContent(JsonSerializer.Serialize(requestForCreationDTO));
             httpRequest.Content.Headers.Remove("Content-Type");
             httpRequest.Content.Headers.Add("Content-Type", "application/json");
 
