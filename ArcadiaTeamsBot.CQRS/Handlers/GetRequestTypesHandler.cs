@@ -10,18 +10,18 @@
 
     using MediatR;
 
-    internal class GetServiceDeskRequestPrioritiesHandler : IRequestHandler<GetServiceDeskRequestPrioritiesQuery, IEnumerable<ServiceDeskRequestPriorityDTO>>
+    public class GetRequestTypesHandler : IRequestHandler<GetRequestTypesQuery, IEnumerable<RequestTypeDTO>>
     {
         private readonly IServiceDeskClient serviceDeskClient;
 
-        public GetServiceDeskRequestPrioritiesHandler(IServiceDeskClient serviceDeskClient)
+        public GetRequestTypesHandler(IServiceDeskClient serviceDeskClient)
         {
             this.serviceDeskClient = serviceDeskClient;
         }
 
-        public Task<IEnumerable<ServiceDeskRequestPriorityDTO>> Handle(GetServiceDeskRequestPrioritiesQuery request, CancellationToken cancellationToken)
+        public Task<IEnumerable<RequestTypeDTO>> Handle(GetRequestTypesQuery request, CancellationToken cancellationToken)
         {
-            return this.serviceDeskClient.GetPriorities(cancellationToken);
+            return this.serviceDeskClient.GetRequestTypes(cancellationToken);
         }
     }
 }

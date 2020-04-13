@@ -1,8 +1,8 @@
 ﻿namespace ArcadiaTeamsBot.ServiceDesk.Requests.RequestType
 {
-    public class RequestTypeForUIField
+    public class RequestTypeUIField
     {
-        public RequestTypeForUIField(string fieldName, RequestTypeForUIFieldType fieldType)
+        public RequestTypeUIField(string fieldName, RequestTypeUIFieldType fieldType)
         {
             this.FieldName = fieldName;
             this.FieldType = fieldType;
@@ -10,6 +10,6 @@
 
         public string FieldName { get; set; }
 
-        public RequestTypeForUIFieldType FieldType { get; set; }
+        public RequestTypeUIFieldType FieldType { get; set; }
     }
 }

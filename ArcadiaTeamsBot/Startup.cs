@@ -33,7 +33,7 @@ namespace ArcadiaTeamsBot
         {
             services.AddControllers();
 
-            services.AddMediatR(typeof(GetServiceDeskRequestTypesHandler).Assembly);
+            services.AddMediatR(typeof(GetRequestTypesHandler).Assembly);
 
             services.AddHttpClient();
 
@@ -45,7 +45,7 @@ namespace ArcadiaTeamsBot
             services.AddTransient<IBot, Bot<MainDialog>>();
             services.AddSingleton(this.serviceDeskConfiguration);
             services.AddSingleton(this.requestTypesMappingConfiguration);
-            services.AddSingleton<IRequestTypeForUIFactory, RequestTypeForUIFactory>();
+            services.AddSingleton<IRequestTypeUIFactory, RequestTypeUIFactory>();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)

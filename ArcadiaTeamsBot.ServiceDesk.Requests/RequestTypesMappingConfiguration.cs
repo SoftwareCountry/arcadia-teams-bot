@@ -4,7 +4,7 @@
 
     using ArcadiaTeamsBot.ServiceDesk.Requests.RequestType;
 
-    public class RequestTypesMappingConfiguration : Dictionary<string, Dictionary<string, RequestTypeForUIFieldType>>
+    public class RequestTypesMappingConfiguration : Dictionary<string, Dictionary<string, RequestTypeUIFieldType>>
     {
     }
 }

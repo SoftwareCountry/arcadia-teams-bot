@@ -1,6 +1,6 @@
 ﻿namespace ArcadiaTeamsBot.ServiceDesk.Requests.RequestType
 {
-    public enum RequestTypeForUIFieldType
+    public enum RequestTypeUIFieldType
     {
         Number,
         Year,

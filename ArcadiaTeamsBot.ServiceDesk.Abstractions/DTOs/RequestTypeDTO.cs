@@ -1,6 +1,6 @@
 ﻿namespace ArcadiaTeamsBot.ServiceDesk.Abstractions.DTOs
 {
-    public class ServiceDeskRequestTypeDTO
+    public class RequestTypeDTO
     {
         public int Id { get; set; }
 
@@ -10,6 +10,6 @@
 
         public string Description { get; set; }
 
-        public ServiceDeskRequestTypeFieldDTO[] RequestTypeFields { get; set; }
+        public RequestTypeFieldDTO[] RequestTypeFields { get; set; }
     }
 }

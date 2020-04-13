@@ -3,8 +3,8 @@
     using ArcadiaTeamsBot.ServiceDesk.Abstractions.DTOs;
     using ArcadiaTeamsBot.ServiceDesk.Requests.RequestType;
 
-    public interface IRequestTypeForUIFactory
+    public interface IRequestTypeUIFactory
     {
-        IRequestTypeForUI CreateRequestTypeForUI(ServiceDeskRequestTypeDTO requestTypeDTO);
+        IRequestTypeUI CreateRequestTypeForUI(RequestTypeDTO requestTypeDTO);
     }
 }

@@ -1,6 +1,6 @@
 ﻿namespace ArcadiaTeamsBot.ServiceDesk.Abstractions.DTOs
 {
-    public class ServiceDeskRequestTypeFieldDTO
+    public class RequestTypeFieldDTO
     {
         public int Id { get; set; }
 

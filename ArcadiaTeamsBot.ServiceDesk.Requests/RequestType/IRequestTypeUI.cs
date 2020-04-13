@@ -2,8 +2,8 @@
 {
     using System.Collections.Generic;
 
-    public interface IRequestTypeForUI
+    public interface IRequestTypeUI
     {
-        IEnumerable<RequestTypeForUIField> RequestTypeForUIFields { get; }
+        IEnumerable<RequestTypeUIField> RequestTypeForUIFields { get; }
     }
 }
