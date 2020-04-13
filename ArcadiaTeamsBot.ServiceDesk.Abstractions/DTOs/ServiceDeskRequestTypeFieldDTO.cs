@@ -7,5 +7,7 @@
         public string FieldName { get; set; }
 
         public bool IsMandatory { get; set; }
+
+        public string Items { get; set; }
     }
 }
