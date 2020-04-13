@@ -19,7 +19,7 @@
 
         public async Task<Unit> Handle(CreateNewServiceDeskRequestCommand request, CancellationToken cancellationToken)
         {
-            await this.serviceDeskClient.CreateNewRequest(request.RequestForCreationDto, cancellationToken);
+            await this.serviceDeskClient.CreateNewRequest(request.CreateRequestDTO, cancellationToken);
 
             return Unit.Value;
         }

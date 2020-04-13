@@ -6,11 +6,11 @@
 
     public class CreateNewServiceDeskRequestCommand : IRequest
     {
-        public CreateNewServiceDeskRequestCommand(CreateRequestDTO requestForCreationDTO)
+        public CreateNewServiceDeskRequestCommand(CreateRequestDTO createRequestDTO)
         {
-            this.RequestForCreationDto = requestForCreationDTO;
+            this.CreateRequestDTO = createRequestDTO;
         }
 
-        public CreateRequestDTO RequestForCreationDto { get; }
+        public CreateRequestDTO CreateRequestDTO { get; }
     }
 }
