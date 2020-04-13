@@ -6,9 +6,9 @@
     {
         public RequestTypeUI(IEnumerable<RequestTypeUIField> requestTypeForUIFields)
         {
-            this.RequestTypeForUIFields = requestTypeForUIFields;
+            this.RequestTypeUIFields = requestTypeForUIFields;
         }
 
-        public IEnumerable<RequestTypeUIField> RequestTypeForUIFields { get; }
+        public IEnumerable<RequestTypeUIField> RequestTypeUIFields { get; }
     }
 }
