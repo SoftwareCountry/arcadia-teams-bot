@@ -66,7 +66,8 @@
             {
                 if ((string)stepContext.Result == type.Title)
                 {
-                    return await stepContext.BeginDialogAsync(nameof(NewRequestDialog), null, cancellationToken);
+                    var choice = (string)stepContext.Result;
+                    return await stepContext.BeginDialogAsync(nameof(NewRequestDialog), choice, cancellationToken);
                 }
             }
             
