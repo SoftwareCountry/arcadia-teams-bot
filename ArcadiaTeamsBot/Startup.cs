@@ -33,7 +33,7 @@ namespace ArcadiaTeamsBot
         {
             services.AddControllers();
 
-            services.AddMediatR(typeof(GetRequestTypesHandler).Assembly);
+            services.AddMediatR(typeof(GetServiceDeskRequestTypesHandler).Assembly);
 
             services.AddHttpClient();
 

@@ -14,7 +14,7 @@
             this.requestTypesMappingConfiguration = requestTypesMappingConfiguration;
         }
 
-        public IRequestTypeUI CreateRequestTypeForUI(RequestTypeDTO requestTypeDTO)
+        public IRequestTypeUI CreateRequestTypeForUI(ServiceDeskRequestTypeDTO requestTypeDTO)
         {
             var requestTypeUIFields = new List<RequestTypeUIField>();
 

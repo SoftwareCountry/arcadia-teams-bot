@@ -2,7 +2,7 @@
 {
     using System.Collections.Generic;
 
-    public class RequestTypeDTO
+    public class ServiceDeskRequestTypeDTO
     {
         public int Id { get; set; }
 
@@ -12,6 +12,6 @@
 
         public string Description { get; set; }
 
-        public IEnumerable<RequestTypeFieldDTO> RequestTypeFields { get; set; }
+        public IEnumerable<ServiceDeskRequestTypeFieldDTO> RequestTypeFields { get; set; }
     }
 }

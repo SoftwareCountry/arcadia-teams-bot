@@ -6,9 +6,9 @@
 
     using MediatR;
 
-    public class GetCurrentRequestsQuery : IRequest<IEnumerable<RequestDTO>>
+    public class GetCurrentServiceDeskRequestsQuery : IRequest<IEnumerable<ServiceDeskRequestDTO>>
     {
-        public GetCurrentRequestsQuery(string username)
+        public GetCurrentServiceDeskRequestsQuery(string username)
         {
             this.Username = username;
         }

@@ -8,10 +8,10 @@
 
     public interface IServiceDeskClient
     {
-        Task<IEnumerable<RequestTypeDTO>> GetRequestTypes(CancellationToken cancellationToken);
+        Task<IEnumerable<ServiceDeskRequestTypeDTO>> GetRequestTypes(CancellationToken cancellationToken);
 
-        Task<IEnumerable<RequestDTO>> GetCurrentRequests(string username, CancellationToken cancellationToken);
+        Task<IEnumerable<ServiceDeskRequestDTO>> GetCurrentRequests(string username, CancellationToken cancellationToken);
 
-        Task<IEnumerable<RequestPriorityDTO>> GetPriorities(CancellationToken cancellationToken);
+        Task<IEnumerable<ServiceDeskRequestPriorityDTO>> GetPriorities(CancellationToken cancellationToken);
     }
 }

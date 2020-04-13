@@ -16,19 +16,19 @@
 
         private readonly IHttpClientFactory clientFactory;
 
-        private readonly IEnumerable<RequestPriorityDTO> priorities = new[]
+        private readonly IEnumerable<ServiceDeskRequestPriorityDTO> priorities = new[]
         {
-            new RequestPriorityDTO
+            new ServiceDeskRequestPriorityDTO
             {
                 Key = 1,
                 Value = "Low"
             },
-            new RequestPriorityDTO
+            new ServiceDeskRequestPriorityDTO
             {
                 Key = 2,
                 Value = "Default"
             },
-            new RequestPriorityDTO
+            new ServiceDeskRequestPriorityDTO
             {
                 Key = 3,
                 Value = "High"
@@ -43,17 +43,17 @@
             this.serviceDeskConfiguration = serviceDeskConfiguration;
         }
 
-        public Task<IEnumerable<RequestTypeDTO>> GetRequestTypes(CancellationToken cancellationToken)
+        public Task<IEnumerable<ServiceDeskRequestTypeDTO>> GetRequestTypes(CancellationToken cancellationToken)
         {
-            return this.GetByUrl<IEnumerable<RequestTypeDTO>>($"{this.serviceDeskConfiguration.ApiUrl}{requestTypesUrl}", cancellationToken);
+            return this.GetByUrl<IEnumerable<ServiceDeskRequestTypeDTO>>($"{this.serviceDeskConfiguration.ApiUrl}{requestTypesUrl}", cancellationToken);
         }
 
-        public Task<IEnumerable<RequestDTO>> GetCurrentRequests(string username, CancellationToken cancellationToken)
+        public Task<IEnumerable<ServiceDeskRequestDTO>> GetCurrentRequests(string username, CancellationToken cancellationToken)
         {
-            return this.GetByUrl<IEnumerable<RequestDTO>>($"{this.serviceDeskConfiguration.ApiUrl}{currentRequestsUrl}{username}", cancellationToken);
+            return this.GetByUrl<IEnumerable<ServiceDeskRequestDTO>>($"{this.serviceDeskConfiguration.ApiUrl}{currentRequestsUrl}{username}", cancellationToken);
         }
 
-        public Task<IEnumerable<RequestPriorityDTO>> GetPriorities(CancellationToken cancellationToken)
+        public Task<IEnumerable<ServiceDeskRequestPriorityDTO>> GetPriorities(CancellationToken cancellationToken)
         {
             return Task.FromResult(this.priorities);
         }

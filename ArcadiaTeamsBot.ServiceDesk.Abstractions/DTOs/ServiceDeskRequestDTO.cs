@@ -2,7 +2,7 @@
 {
     using System;
 
-    public class RequestDTO
+    public class ServiceDeskRequestDTO
     {
         public string RequestNumber { get; set; }
 

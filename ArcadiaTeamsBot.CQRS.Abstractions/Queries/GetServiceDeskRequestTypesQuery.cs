@@ -6,7 +6,7 @@
 
     using MediatR;
 
-    public class GetRequestPrioritiesQuery : IRequest<IEnumerable<RequestPriorityDTO>>
+    public class GetServiceDeskRequestTypesQuery : IRequest<IEnumerable<ServiceDeskRequestTypeDTO>>
     {
     }
 }

@@ -1,6 +1,6 @@
 ﻿namespace ArcadiaTeamsBot.ServiceDesk.Abstractions.DTOs
 {
-    public class RequestPriorityDTO
+    public class ServiceDeskRequestPriorityDTO
     {
         public int Key { get; set; }
 

@@ -5,6 +5,6 @@
 
     public interface IRequestTypeUIFactory
     {
-        IRequestTypeUI CreateRequestTypeForUI(RequestTypeDTO requestTypeDTO);
+        IRequestTypeUI CreateRequestTypeForUI(ServiceDeskRequestTypeDTO requestTypeDTO);
     }
 }
