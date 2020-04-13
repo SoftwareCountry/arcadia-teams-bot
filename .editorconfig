@@ -1,7 +1,8 @@
-﻿[*]
+[*]
 
 # ReSharper properties
 resharper_blank_lines_after_start_comment=0
+resharper_blank_lines_around_single_line_auto_property=1
 resharper_blank_lines_around_single_line_local_method=1
 resharper_blank_lines_before_single_line_comment=1
 resharper_blank_lines_between_using_groups=1
