@@ -5,6 +5,8 @@ namespace ArcadiaTeamsBot
     using ArcadiaTeamsBot.Infrastructure;
     using ArcadiaTeamsBot.ServiceDesk;
     using ArcadiaTeamsBot.ServiceDesk.Abstractions;
+    using ArcadiaTeamsBot.ServiceDesk.Requests;
+    using ArcadiaTeamsBot.ServiceDesk.Requests.RequestTypeFactory;
 
     using MediatR;
 
@@ -19,10 +21,12 @@ namespace ArcadiaTeamsBot
     public class Startup
     {
         private readonly ServiceDeskConfiguration serviceDeskConfiguration;
+        private readonly RequestTypesMappingConfiguration requestTypesMappingConfiguration;
 
         public Startup(IConfiguration configuration)
         {
             this.serviceDeskConfiguration = configuration.GetSection("ServiceDesk").Get<ServiceDeskConfiguration>();
+            this.requestTypesMappingConfiguration = configuration.GetSection("ServiceDeskRequestsMapping").Get<RequestTypesMappingConfiguration>();
         }
 
         public void ConfigureServices(IServiceCollection services)
@@ -40,6 +44,8 @@ namespace ArcadiaTeamsBot
             services.AddSingleton<MainDialog>();
             services.AddTransient<IBot, Bot<MainDialog>>();
             services.AddSingleton(this.serviceDeskConfiguration);
+            services.AddSingleton(this.requestTypesMappingConfiguration);
+            services.AddSingleton<IRequestTypeUIFactory, RequestTypeUIFactory>();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
