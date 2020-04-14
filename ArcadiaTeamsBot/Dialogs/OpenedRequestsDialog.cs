@@ -72,9 +72,8 @@
             Actions.Add(backAction);
 
             var attachment = OpenedRequestsCard(Actions);
-            var reply = MessageFactory.Attachment(attachment);
 
-            await stepContext.Context.SendActivityAsync(reply, cancellationToken);
+            await stepContext.Context.SendActivityAsync(MessageFactory.Attachment(attachment), cancellationToken);
             return await stepContext.PromptAsync(nameof(TextPrompt), new PromptOptions { }, cancellationToken);
         }
 
@@ -84,7 +83,7 @@
             {
                 return await stepContext.BeginDialogAsync(nameof(MainDialog), null, cancellationToken);
             }
-            return await stepContext.EndDialogAsync(cancellationToken: cancellationToken);
+            return await stepContext.ReplaceDialogAsync(nameof(OpenedRequestsDialog), null, cancellationToken);
         }
 
         public static Attachment OpenedRequestsCard(List<AdaptiveAction> actions)
