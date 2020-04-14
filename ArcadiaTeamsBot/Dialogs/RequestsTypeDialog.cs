@@ -74,7 +74,7 @@
             {
                 return await stepContext.BeginDialogAsync(nameof(MainDialog), null, cancellationToken);
             }
-            return await stepContext.ContinueDialogAsync(cancellationToken: cancellationToken);
+            return await stepContext.ReplaceDialogAsync(nameof(RequestsTypeDialog), null, cancellationToken);
         }
 
         public static HeroCard GetInfoCard(List<CardAction> Buttons)
