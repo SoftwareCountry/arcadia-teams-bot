@@ -1,12 +1,14 @@
 ﻿namespace ArcadiaTeamsBot.Dialogs
 {
     using System.Collections.Generic;
+    using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
 
     using AdaptiveCards;
 
     using ArcadiaTeamsBot.ServiceDesk.Abstractions.DTOs;
+    using ArcadiaTeamsBot.ServiceDesk.Requests.RequestType;
     using ArcadiaTeamsBot.ServiceDesk.Requests.RequestTypeFactory;
 
     using Microsoft.Bot.Builder;
@@ -16,14 +18,15 @@
     public class NewRequestDialog : ComponentDialog
     {
         private const string Back = "Back";
-        private readonly IRequestTypeUIFactory request;
-        public NewRequestDialog(IRequestTypeUIFactory request) : base(nameof(NewRequestDialog))
+        private readonly IRequestTypeUIFactory requestTypeUiFactory;
+
+        public NewRequestDialog(IRequestTypeUIFactory requestTypeUIFactory) : base(nameof(NewRequestDialog))
         {
-            this.request = request;
+            this.requestTypeUiFactory = requestTypeUIFactory;
             this.AddDialog(new WaterfallDialog(nameof(WaterfallDialog), new WaterfallStep[]
             {
-                InputStep,
-                EndStep,
+                this.InputStep,
+                EndStep
             }));
 
             this.AddDialog(new TextPrompt(nameof(TextPrompt)));
@@ -32,16 +35,21 @@
 
         private async Task<DialogTurnResult> InputStep(WaterfallStepContext stepContext, CancellationToken cancellationToken)
         {
-            var additionalFields = this.request.CreateRequestTypeUI((ServiceDeskRequestTypeDTO)stepContext.Options).RequestTypeUIFields;
+            var requestTypeDTO = (ServiceDeskRequestTypeDTO) stepContext.Options;
+            var additionalFields = this.requestTypeUiFactory.CreateRequestTypeUI(requestTypeDTO).RequestTypeUIFields;
+
             var data = new CreateRequestDTO();
-            var body = new List<AdaptiveElement>()
+            var body = new List<AdaptiveElement>
             {
-                new AdaptiveTextBlock("Enter title of request"),
-                new AdaptiveTextInput() { Id = "Title", Placeholder = "Title", Value = data.Title  },
-                new AdaptiveTextBlock("Enter description of request"),
-                new AdaptiveTextInput() { Id = "Description", Placeholder = "Description", Value = data.Description },
+                new AdaptiveTextBlock("Enter title of requestTypeUIFactory"),
+                new AdaptiveTextInput {Id = "Title", Placeholder = "Title", Value = data.Title},
+
+                new AdaptiveTextBlock("Enter description of requestTypeUIFactory"),
+                new AdaptiveTextInput {Id = "Description", Placeholder = "Description", Value = data.Description},
+
                 new AdaptiveTextBlock("Enter execute date"),
-                new AdaptiveTextInput() { Id = "ExecuteDate", Placeholder = "ExecuteDate", Value = data.ExecutionDate.ToString()},
+                new AdaptiveDateInput {Id = "ExecuteDate", Value = data.ExecutionDate.ToString()},
+
                 new AdaptiveTextBlock("Choose a priority"),
                 new AdaptiveChoiceSetInput
                 {
@@ -51,16 +59,57 @@
                     Id = "PriorityId",
                     Choices = new List<AdaptiveChoice>
                     {
-                        new AdaptiveChoice() { Title = "Low", Value = "1" },
-                        new AdaptiveChoice() { Title = "Default", Value = "2" },
-                        new AdaptiveChoice() { Title = "High", Value = "3" },
-                    },
+                        new AdaptiveChoice {Title = "Low", Value = "1"},
+                        new AdaptiveChoice {Title = "Default", Value = "2"},
+                        new AdaptiveChoice {Title = "High", Value = "3"}
+                    }
                 }
             };
 
             foreach (var field in additionalFields)
             {
-                var input = new AdaptiveTextInput() { Id = field.FieldName, Placeholder = field.FieldName };
+                AdaptiveTextBlock textBlock;
+                AdaptiveInput input;
+
+                switch (field.FieldType)
+                {
+                    case RequestTypeUIFieldType.Year:
+                        textBlock = new AdaptiveTextBlock("Choose a year");
+                        input = new AdaptiveDateInput {Id = field.FieldName, Placeholder = field.FieldName};
+                        break;
+
+                    case RequestTypeUIFieldType.Select:
+                        textBlock = new AdaptiveTextBlock("Choose an item");
+                        input = new AdaptiveChoiceSetInput
+                        {
+                            Type = AdaptiveChoiceSetInput.TypeName,
+                            IsMultiSelect = false,
+                            Id = "Items",
+                            Choices = requestTypeDTO.RequestTypeFields
+                                .First(rt => rt.FieldName == field.FieldName).Items
+                                .Split(';')
+                                .Select(item => new AdaptiveChoice {Title = item, Value = item})
+                                .ToList()
+                        };
+                        break;
+
+                    case RequestTypeUIFieldType.Number:
+                        textBlock = new AdaptiveTextBlock("Enter a number");
+                        input = new AdaptiveNumberInput {Id = field.FieldName, Placeholder = field.FieldName};
+                        break;
+
+                    case RequestTypeUIFieldType.String:
+                        textBlock = new AdaptiveTextBlock("Enter a string");
+                        input = new AdaptiveTextInput {Id = field.FieldName, Placeholder = field.FieldName};
+                        break;
+
+                    default:
+                        textBlock = new AdaptiveTextBlock("Unknown field type. Enter a string");
+                        input = new AdaptiveTextInput {Id = field.FieldName, Placeholder = field.FieldName};
+                        break;
+                }
+
+                body.Add(textBlock);
                 body.Add(input);
             }
 
@@ -68,28 +117,30 @@
             return await stepContext.PromptAsync(nameof(TextPrompt),
                 new PromptOptions
                 {
-                    Prompt = (Activity)MessageFactory.Attachment(attachments),
+                    Prompt = (Activity) MessageFactory.Attachment(attachments)
                 }, cancellationToken);
         }
 
         private static async Task<DialogTurnResult> EndStep(WaterfallStepContext stepContext, CancellationToken cancellationToken)
         {
-            if ((string)stepContext.Result == Back)
+            if ((string) stepContext.Result == Back)
             {
                 return await stepContext.BeginDialogAsync(nameof(RequestsTypeDialog), null, cancellationToken);
             }
-            return await stepContext.ContinueDialogAsync(cancellationToken: cancellationToken);
+
+            return await stepContext.ContinueDialogAsync(cancellationToken);
         }
 
         public static Attachment InputCard(List<AdaptiveElement> body)
         {
-            var card = new AdaptiveCard()
+            var card = new AdaptiveCard
             {
                 Title = "Input all data",
-                Body = body,
+                Body = body
+
                 //Actions = actions,
             };
-            var attachment = new Attachment()
+            var attachment = new Attachment
             {
                 ContentType = AdaptiveCard.ContentType,
                 Content = card
