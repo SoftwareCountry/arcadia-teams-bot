@@ -5,6 +5,7 @@
     using System.Threading.Tasks;
 
     using ArcadiaTeamsBot.CQRS.Abstractions;
+    using ArcadiaTeamsBot.ServiceDesk.Requests.RequestTypeFactory;
 
     using MediatR;
 
@@ -18,7 +19,7 @@
         const string Username = "vyacheslav.lasukov@arcadia.spb.ru";
         private readonly IMediator mediator;
 
-        public RequestsTypeDialog(IMediator mediator) : base(nameof(RequestsTypeDialog))
+        public RequestsTypeDialog(IMediator mediator, IRequestTypeUIFactory request) : base(nameof(RequestsTypeDialog))
         {
             this.mediator = mediator;
             this.AddDialog(new WaterfallDialog(nameof(WaterfallDialog), new WaterfallStep[]
@@ -27,7 +28,7 @@
                 EndStep,
             }));
 
-            this.AddDialog(new NewRequestDialog());
+            this.AddDialog(new NewRequestDialog(request));
             this.AddDialog(new TextPrompt(nameof(TextPrompt)));
             this.InitialDialogId = nameof(WaterfallDialog);
         }
@@ -66,8 +67,7 @@
             {
                 if ((string)stepContext.Result == type.Title)
                 {
-                    var choice = (string)stepContext.Result;
-                    return await stepContext.BeginDialogAsync(nameof(NewRequestDialog), choice, cancellationToken);
+                    return await stepContext.BeginDialogAsync(nameof(NewRequestDialog), type, cancellationToken);
                 }
             }
             

@@ -4,6 +4,8 @@
     using System.Threading;
     using System.Threading.Tasks;
 
+    using ArcadiaTeamsBot.ServiceDesk.Requests.RequestTypeFactory;
+
     using MediatR;
 
     using Microsoft.Bot.Builder;
@@ -15,9 +17,9 @@
         private const string NewRequest = "New request";
         private const string OpenedRequests = "See current requests";
 
-        public MainDialog(IMediator mediator) : base(nameof(MainDialog))
+        public MainDialog(IMediator mediator, IRequestTypeUIFactory request) : base(nameof(MainDialog))
         {
-            this.AddDialog(new RequestsTypeDialog(mediator));
+            this.AddDialog(new RequestsTypeDialog(mediator, request));
             this.AddDialog(new OpenedRequestsDialog(mediator));
 
             this.AddDialog(new WaterfallDialog(nameof(WaterfallDialog), new WaterfallStep[]
