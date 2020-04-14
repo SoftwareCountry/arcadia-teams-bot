@@ -9,9 +9,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ArcadiaTeamsBot.CQRS", "Arc
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ArcadiaTeamsBot.CQRS.Abstractions", "ArcadiaTeamsBot.CQRS.Abstractions\ArcadiaTeamsBot.CQRS.Abstractions.csproj", "{D98D1112-FA87-4853-912C-85571569CF72}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ArcadiaTeamsBot.ServiceDesk", "ArcadiaTeamsBot.ServiceDesk\ArcadiaTeamsBot.ServiceDesk.csproj", "{A2AC80A4-8A2E-4B8A-97AB-EF47FF518E4B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ArcadiaTeamsBot.ServiceDesk", "ArcadiaTeamsBot.ServiceDesk\ArcadiaTeamsBot.ServiceDesk.csproj", "{A2AC80A4-8A2E-4B8A-97AB-EF47FF518E4B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ArcadiaTeamsBot.ServiceDesk.Abstractions", "ArcadiaTeamsBot.ServiceDesk.Abstractions\ArcadiaTeamsBot.ServiceDesk.Abstractions.csproj", "{67913683-F7EA-4D01-A1DA-94FC68C6329A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ArcadiaTeamsBot.ServiceDesk.Abstractions", "ArcadiaTeamsBot.ServiceDesk.Abstractions\ArcadiaTeamsBot.ServiceDesk.Abstractions.csproj", "{67913683-F7EA-4D01-A1DA-94FC68C6329A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ArcadiaTeamsBot.ServiceDesk.Requests", "ArcadiaTeamsBot.ServiceDesk.Requests\ArcadiaTeamsBot.ServiceDesk.Requests.csproj", "{E7F0150F-412A-45A0-B634-481268B6F057}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -39,6 +41,10 @@ Global
 		{67913683-F7EA-4D01-A1DA-94FC68C6329A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{67913683-F7EA-4D01-A1DA-94FC68C6329A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{67913683-F7EA-4D01-A1DA-94FC68C6329A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E7F0150F-412A-45A0-B634-481268B6F057}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E7F0150F-412A-45A0-B634-481268B6F057}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E7F0150F-412A-45A0-B634-481268B6F057}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E7F0150F-412A-45A0-B634-481268B6F057}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
