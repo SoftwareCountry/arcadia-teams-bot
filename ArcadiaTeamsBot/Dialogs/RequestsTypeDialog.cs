@@ -16,7 +16,6 @@
     public class RequestsTypeDialog : ComponentDialog
     {
         private const string Back = "Back";
-        const string Username = "vyacheslav.lasukov@arcadia.spb.ru";
         private readonly IMediator mediator;
 
         public RequestsTypeDialog(IMediator mediator, IRequestTypeUIFactory request) : base(nameof(RequestsTypeDialog))
@@ -28,7 +27,7 @@
                 EndStep,
             }));
 
-            this.AddDialog(new NewRequestDialog(request));
+            this.AddDialog(new NewRequestDialog(request, mediator));
             this.AddDialog(new TextPrompt(nameof(TextPrompt)));
             this.InitialDialogId = nameof(WaterfallDialog);
         }
