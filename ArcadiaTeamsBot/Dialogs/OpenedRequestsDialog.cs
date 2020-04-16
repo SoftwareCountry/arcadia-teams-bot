@@ -1,7 +1,6 @@
 ﻿namespace ArcadiaTeamsBot.Dialogs
 {
     using System.Collections.Generic;
-    using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
 
@@ -18,7 +17,7 @@
     public class OpenedRequestsDialog : ComponentDialog
     {
         private const string Back = "Back";
-        const string Username = "vyacheslav.lasukov@arcadia.spb.ru";
+        const string Username = "ekaterina.kuznetsova@arcadia.spb.ru";
         private readonly IMediator mediator;
 
         public OpenedRequestsDialog(IMediator mediator) : base(nameof(OpenedRequestsDialog))
@@ -38,10 +37,9 @@
         {
             var getRequestsQuery = new GetCurrentServiceDeskRequestsQuery(Username);
             var openedRequest = await this.mediator.Send(getRequestsQuery, cancellationToken);
-            var serviceDeskRequests = openedRequest.ToList();
 
             var Actions = new List<AdaptiveAction>();
-            foreach (var request in serviceDeskRequests)
+            foreach (var request in openedRequest)
             {
                 if (request.ExecutorFullName == "")
                 {
@@ -74,9 +72,8 @@
             Actions.Add(backAction);
 
             var attachment = OpenedRequestsCard(Actions);
-            var reply = MessageFactory.Attachment(attachment);
 
-            await stepContext.Context.SendActivityAsync(reply, cancellationToken);
+            await stepContext.Context.SendActivityAsync(MessageFactory.Attachment(attachment), cancellationToken);
             return await stepContext.PromptAsync(nameof(TextPrompt), new PromptOptions { }, cancellationToken);
         }
 
@@ -86,7 +83,7 @@
             {
                 return await stepContext.BeginDialogAsync(nameof(MainDialog), null, cancellationToken);
             }
-            return await stepContext.EndDialogAsync(cancellationToken: cancellationToken);
+            return await stepContext.ReplaceDialogAsync(nameof(OpenedRequestsDialog), null, cancellationToken);
         }
 
         public static Attachment OpenedRequestsCard(List<AdaptiveAction> actions)
