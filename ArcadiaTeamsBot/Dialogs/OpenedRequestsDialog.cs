@@ -17,7 +17,7 @@
     public class OpenedRequestsDialog : ComponentDialog
     {
         private const string Back = "Back";
-        const string Username = "ekaterina.kuznetsova@arcadia.spb.ru";
+        private const string username = "vyacheslav.lasukov@arcadia.spb.ru";
         private readonly IMediator mediator;
 
         public OpenedRequestsDialog(IMediator mediator) : base(nameof(OpenedRequestsDialog))
@@ -35,7 +35,7 @@
 
         private async Task<DialogTurnResult> InfoStep(WaterfallStepContext stepContext, CancellationToken cancellationToken)
         {
-            var getRequestsQuery = new GetCurrentServiceDeskRequestsQuery(Username);
+            var getRequestsQuery = new GetCurrentServiceDeskRequestsQuery(username);
             var openedRequest = await this.mediator.Send(getRequestsQuery, cancellationToken);
 
             var Actions = new List<AdaptiveAction>();
