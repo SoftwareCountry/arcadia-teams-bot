@@ -8,7 +8,6 @@
 
     using ArcadiaTeamsBot.CQRS.Abstractions.Commands;
     using ArcadiaTeamsBot.ServiceDesk.Abstractions.DTOs;
-    using ArcadiaTeamsBot.ServiceDesk.Requests.RequestType;
     using ArcadiaTeamsBot.ServiceDesk.Requests.RequestTypeFactory;
 
     using MediatR;
@@ -36,7 +35,7 @@
                 DescriptionStep,
                 PriorityStep,
                 ExecutionDateStep,
-                AdditionalStep,
+                this.AdditionalFieldsStep,
                 ConfirmStep,
                 this.CreateRequestStep
             }));
@@ -101,62 +100,24 @@
                 }, cancellationToken);
         }
 
-        private async Task<DialogTurnResult> AdditionalStep(WaterfallStepContext stepContext, CancellationToken cancellationToken)
+        private async Task<DialogTurnResult> AdditionalFieldsStep(WaterfallStepContext stepContext, CancellationToken cancellationToken)
         {
             stepContext.Values["ExecutionDate"] = stepContext.Result;
 
             var additionalFields = this.requestTypeUIFactory.CreateRequestTypeUI((ServiceDeskRequestTypeDTO)stepContext.Values["DTO"]).RequestTypeUIFields;
 
-            foreach (var field in additionalFields)
+            if (!additionalFields.Any())
             {
-                switch (field.FieldType)
-                {
-                    case RequestTypeUIFieldType.Year:
-                        return await stepContext.PromptAsync(nameof(DateTimePrompt),
-                            new PromptOptions
-                            {
-                                Prompt = MessageFactory.Text("Choose a year"),
-                            }, cancellationToken);
-
-                    case RequestTypeUIFieldType.Select:
-                        return await stepContext.PromptAsync(nameof(ChoicePrompt),
-                            new PromptOptions
-                            {
-                                Prompt = MessageFactory.Text("Choose an item of" + field.FieldName),
-                                Choices = ((ServiceDeskRequestTypeDTO)stepContext.Values["DTO"]).RequestTypeFields
-                                    .First(rt => rt.FieldName == field.FieldName).Items
-                                    .Split(';')
-                                    .Select(item => new Choice { Value = item })
-                                    .ToList()
-                            }, cancellationToken);
-
-                    case RequestTypeUIFieldType.Number:
-                        return await stepContext.PromptAsync(nameof(NumberPrompt<int>),
-                            new PromptOptions
-                            {
-                                Prompt = MessageFactory.Text("Enter a number of " + field.FieldName),
-                            }, cancellationToken);
-
-                    case RequestTypeUIFieldType.String:
-                        return await stepContext.PromptAsync(nameof(TextPrompt),
-                            new PromptOptions
-                            {
-                                Prompt = MessageFactory.Text("Enter a string of " + field.FieldName),
-                            }, cancellationToken);
-
-                    default:
-                        return await stepContext.PromptAsync(nameof(TextPrompt),
-                            new PromptOptions
-                            {
-                                Prompt = MessageFactory.Text("Enter a string of " + field.FieldName),
-                            }, cancellationToken);
-                }
+                return await stepContext.NextAsync(cancellationToken: cancellationToken);
             }
 
-            return await stepContext.ContinueDialogAsync(cancellationToken);
+            return await stepContext.BeginDialogAsync(nameof(AdditionalFieldsDialog), additionalFields, cancellationToken);
         }
+
         private static async Task<DialogTurnResult> ConfirmStep(WaterfallStepContext stepContext, CancellationToken cancellationToken)
         {
+            //stepContext.Values["AdditionalFields"] = stepContext.Result;
+
             return await stepContext.PromptAsync(nameof(ChoicePrompt),
                 new PromptOptions
                 {
@@ -167,7 +128,7 @@
 
         private async Task<DialogTurnResult> CreateRequestStep(WaterfallStepContext stepContext, CancellationToken cancellationToken)
         {
-            stepContext.Values["Field"] = ((FoundChoice)stepContext.Result).Value;
+            stepContext.Values["Field"] = ((FoundChoice) stepContext.Result).Value;
 
             stepContext.Values.TryGetValue("ExecutionDate", out var executionDate);
 
@@ -181,7 +142,8 @@
                 },
                 PriorityId = Convert.ToInt32(stepContext.Values["PriorityId"]),
                 ExecutionDate = (DateTime?) executionDate,
-                Username = username
+                Username = username,
+                //FieldValues = stepContext.Values["AdditionalFields"]
             };
 
             switch (stepContext.Values["Field"])
