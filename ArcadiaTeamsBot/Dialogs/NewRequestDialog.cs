@@ -20,7 +20,7 @@
     {
         private const string back = "Back";
         private const string send = "Send";
-        private const string username = "vyacheslav.lasukov@arcadia.spb.ru";
+        private const string username = "ekaterina.kuznetsova@arcadia.spb.ru";
         private readonly IRequestTypeUIFactory requestTypeUIFactory;
         private readonly IMediator mediator;
 
@@ -48,7 +48,7 @@
 
         private async Task<DialogTurnResult> TitleStep(WaterfallStepContext stepContext, CancellationToken cancellationToken)
         {
-            var requestTypeDTO = (ServiceDeskRequestTypeDTO) stepContext.Options;
+            var requestTypeDTO = (ServiceDeskRequestTypeDTO)stepContext.Options;
 
             stepContext.Values["Type"] = requestTypeDTO.Id;
             stepContext.Values["Fields"] = requestTypeDTO.RequestTypeFields;
@@ -80,7 +80,7 @@
                 new PromptOptions
                 {
                     Prompt = MessageFactory.Text("Choose priority"),
-                    Choices = ChoiceFactory.ToChoices(new List<string> {"Low", "Default", "High"})
+                    Choices = ChoiceFactory.ToChoices(new List<string> { "Low", "Default", "High" })
                 }, cancellationToken);
         }
 
@@ -102,51 +102,52 @@
 
         private async Task<DialogTurnResult> AdditionalFieldsStep(WaterfallStepContext stepContext, CancellationToken cancellationToken)
         {
-            stepContext.Values["ExecutionDate"] = stepContext.Result;
+            var dateTime = ((IList<DateTimeResolution>)stepContext.Result).First();
+            stepContext.Values["ExecutionDate"] = Convert.ToDateTime(dateTime.Value);
 
-            var additionalFields = this.requestTypeUIFactory.CreateRequestTypeUI((ServiceDeskRequestTypeDTO)stepContext.Values["DTO"]).RequestTypeUIFields;
+            var additionalFields = this.requestTypeUIFactory.CreateRequestTypeUI((ServiceDeskRequestTypeDTO)stepContext.Values["DTO"]).RequestTypeUIFields.ToList();
 
             if (!additionalFields.Any())
             {
-                return await stepContext.NextAsync(cancellationToken: cancellationToken);
+                return await stepContext.ContinueDialogAsync(cancellationToken: cancellationToken);
             }
+            var fields = new List<string>();
 
-            return await stepContext.BeginDialogAsync(nameof(AdditionalFieldsDialog), additionalFields, cancellationToken);
+            for (var i = 0; i < additionalFields.Count; i++)
+            {
+                await stepContext.BeginDialogAsync(nameof(AdditionalFieldsDialog), additionalFields[i], cancellationToken);
+                stepContext.Values[i.ToString()] = stepContext.Result;
+                fields.Add(stepContext.Values[i.ToString()].ToString());
+            }
+            stepContext.Values["Fields"] = fields;
+            return await stepContext.ContinueDialogAsync(cancellationToken: cancellationToken);
         }
 
         private static async Task<DialogTurnResult> ConfirmStep(WaterfallStepContext stepContext, CancellationToken cancellationToken)
         {
-            //stepContext.Values["AdditionalFields"] = stepContext.Result;
-
             return await stepContext.PromptAsync(nameof(ChoicePrompt),
                 new PromptOptions
                 {
                     Prompt = MessageFactory.Text("Send or go back?"),
-                    Choices = ChoiceFactory.ToChoices(new List<string> {send, back})
+                    Choices = ChoiceFactory.ToChoices(new List<string> { send, back })
                 }, cancellationToken);
         }
 
         private async Task<DialogTurnResult> CreateRequestStep(WaterfallStepContext stepContext, CancellationToken cancellationToken)
         {
-            stepContext.Values["Field"] = ((FoundChoice) stepContext.Result).Value;
-
-            stepContext.Values.TryGetValue("ExecutionDate", out var executionDate);
-
             var data = new CreateRequestDTO
             {
                 Title = stepContext.Values["Title"].ToString(),
                 Description = stepContext.Values["Description"].ToString(),
-                Type = new CreateRequestTypeDTO
-                {
-                    Id = (int) stepContext.Values["Type"]
-                },
+                Type = new CreateRequestTypeDTO { Id = (int)stepContext.Values["Type"] },
                 PriorityId = Convert.ToInt32(stepContext.Values["PriorityId"]),
-                ExecutionDate = (DateTime?) executionDate,
-                Username = username,
-                //FieldValues = stepContext.Values["AdditionalFields"]
+                ExecutionDate = (DateTime?)stepContext.Values["ExecutionDate"],
+                Username = username
             };
 
-            switch (stepContext.Values["Field"])
+            //data.FieldValues = (IList<string>)stepContext.Values["Fields"];
+
+            switch (((FoundChoice)stepContext.Result).Value)
             {
                 case send:
                     var sendRequestsQuery = new CreateNewServiceDeskRequestCommand(data);
