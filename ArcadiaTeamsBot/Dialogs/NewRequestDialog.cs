@@ -36,6 +36,7 @@
                 DescriptionStep,
                 PriorityStep,
                 ExecutionDateStep,
+                SaveDateStep,
                 this.AdditionalFieldsStep,
                 ConfirmStep,
                 this.CreateRequestStep
@@ -101,11 +102,16 @@
                 }, cancellationToken);
         }
 
-        private async Task<DialogTurnResult> AdditionalFieldsStep(WaterfallStepContext stepContext, CancellationToken cancellationToken)
+        private async Task<DialogTurnResult> SaveDateStep(WaterfallStepContext stepContext, CancellationToken cancellationToken)
         {
             var dateTime = ((IList<DateTimeResolution>)stepContext.Result).First();
             stepContext.Values["ExecutionDate"] = Convert.ToDateTime(dateTime.Value);
 
+            return await stepContext.ContinueDialogAsync(cancellationToken);
+        }
+
+        private async Task<DialogTurnResult> AdditionalFieldsStep(WaterfallStepContext stepContext, CancellationToken cancellationToken)
+        {
             var additionalFields = this.requestTypeUIFactory.CreateRequestTypeUI((ServiceDeskRequestTypeDTO)stepContext.Values["DTO"]).RequestTypeUIFields.ToList();
 
             if (!additionalFields.Any())
@@ -118,17 +124,12 @@
             {
                 await stepContext.BeginDialogAsync(nameof(AdditionalFieldsDialog), additionalFields[i], cancellationToken);
 
-                stepContext.Values[i.ToString()] = stepContext.Result;
-                fields.Add(stepContext.Values[i.ToString()].ToString());
-
+                stepContext.Values[(7 + i).ToString()] = stepContext.Result;
+                fields.Add(stepContext.Values[(7 + i).ToString()].ToString());
             }
-            stepContext.Values["Fields"] = fields;
-            return await stepContext.PromptAsync(nameof(TextPrompt),
-                new PromptOptions
-                {
-                    Prompt = MessageFactory.Text(""),
-                }, cancellationToken);
 
+            stepContext.Values["Fields"] = fields;
+            return await stepContext.PromptAsync(nameof(TextPrompt), new PromptOptions { }, cancellationToken);
         }
 
         private static async Task<DialogTurnResult> ConfirmStep(WaterfallStepContext stepContext, CancellationToken cancellationToken)
@@ -150,10 +151,11 @@
                 Type = new CreateRequestTypeDTO { Id = (int)stepContext.Values["Type"] },
                 PriorityId = Convert.ToInt32(stepContext.Values["PriorityId"]),
                 ExecutionDate = (DateTime?)stepContext.Values["ExecutionDate"],
-                Username = username
+                Username = username,
+                FieldValues = (List<string>)stepContext.Values["Fields"]
             };
 
-            //data.FieldValues = (IList<string>)stepContext.Values["Fields"];
+            //data.FieldValues = new List<string>{"bla","bla"};
 
             switch (((FoundChoice)stepContext.Result).Value)
             {

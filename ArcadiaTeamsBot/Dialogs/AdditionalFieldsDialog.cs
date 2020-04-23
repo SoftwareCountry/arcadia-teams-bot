@@ -20,10 +20,13 @@
         {
             this.AddDialog(new WaterfallDialog(nameof(WaterfallDialog), new WaterfallStep[]
             {
-                this.AdditionalFieldStep,
+                this.AdditionalFieldStep
             }));
 
             this.AddDialog(new TextPrompt(nameof(TextPrompt)));
+            this.AddDialog(new DateTimePrompt(nameof(DateTimePrompt)));
+            this.AddDialog(new ChoicePrompt(nameof(ChoicePrompt)));
+            this.AddDialog(new NumberPrompt<int>(nameof(NumberPrompt<int>)));
         }
 
         private async Task<DialogTurnResult> AdditionalFieldStep(WaterfallStepContext stepContext, CancellationToken cancellationToken)
