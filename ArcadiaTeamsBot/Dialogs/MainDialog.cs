@@ -60,7 +60,7 @@
         {
             var choiceCard = new HeroCard
             {
-                Title = " You can create a new request or view opened requests.",
+                Title = "You can create a new request or view opened requests.",
                 Subtitle = "What do you want to do?",
                 Buttons = new List<CardAction>
                 {

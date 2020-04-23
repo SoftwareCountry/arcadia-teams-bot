@@ -21,6 +21,7 @@
         public RequestsTypeDialog(IMediator mediator) : base(nameof(RequestsTypeDialog))
         {
             this.mediator = mediator;
+
             this.AddDialog(new WaterfallDialog(nameof(WaterfallDialog), new WaterfallStep[]
             {
                 TypeStep,
