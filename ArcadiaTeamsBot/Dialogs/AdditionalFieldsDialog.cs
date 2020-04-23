@@ -20,9 +20,10 @@
         {
             this.AddDialog(new WaterfallDialog(nameof(WaterfallDialog), new WaterfallStep[]
             {
-                AdditionalFieldStep,
-                EndStep
+                this.AdditionalFieldStep,
             }));
+
+            this.AddDialog(new TextPrompt(nameof(TextPrompt)));
         }
 
         private async Task<DialogTurnResult> AdditionalFieldStep(WaterfallStepContext stepContext, CancellationToken cancellationToken)
@@ -57,8 +58,6 @@
                         }, cancellationToken);
 
                 case RequestTypeUIFieldType.String:
-                    stepContext.ActiveDialog.State["stepIndex"] = (int)stepContext.ActiveDialog.State["stepIndex"] - 1;
-
                     return await stepContext.PromptAsync(nameof(TextPrompt),
                         new PromptOptions
                         {
@@ -72,11 +71,6 @@
                             Prompt = MessageFactory.Text("Enter a string of " + currentField.FieldName)
                         }, cancellationToken);
             }
-        }
-       
-        private async Task<DialogTurnResult> EndStep(WaterfallStepContext stepContext, CancellationToken cancellationToken)
-        {
-            return await stepContext.EndDialogAsync(cancellationToken: cancellationToken);
         }
     }
 }

@@ -28,6 +28,7 @@
         {
             this.requestTypeUIFactory = requestTypeUIFactory;
             this.mediator = mediator;
+            this.AddDialog(new AdditionalFieldsDialog());
 
             this.AddDialog(new WaterfallDialog(nameof(WaterfallDialog), new WaterfallStep[]
             {
@@ -116,11 +117,18 @@
             for (var i = 0; i < additionalFields.Count; i++)
             {
                 await stepContext.BeginDialogAsync(nameof(AdditionalFieldsDialog), additionalFields[i], cancellationToken);
+
                 stepContext.Values[i.ToString()] = stepContext.Result;
                 fields.Add(stepContext.Values[i.ToString()].ToString());
+
             }
             stepContext.Values["Fields"] = fields;
-            return await stepContext.ContinueDialogAsync(cancellationToken: cancellationToken);
+            return await stepContext.PromptAsync(nameof(TextPrompt),
+                new PromptOptions
+                {
+                    Prompt = MessageFactory.Text(""),
+                }, cancellationToken);
+
         }
 
         private static async Task<DialogTurnResult> ConfirmStep(WaterfallStepContext stepContext, CancellationToken cancellationToken)
