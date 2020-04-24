@@ -27,7 +27,7 @@
 
             this.AddDialog(new WaterfallDialog(nameof(WaterfallDialog), new WaterfallStep[]
             {
-                InfoStep,
+                this.InfoStep,
                 EndStep,
             }));
             this.AddDialog(new TextPrompt(nameof(TextPrompt)));
@@ -61,7 +61,6 @@
                         }
                     },
                 };
-
                 Actions.Add(shownCard);
             }
 
@@ -70,13 +69,10 @@
                 Title = Back,
                 Data = Back,
             };
-
             Actions.Add(backAction);
 
             var attachment = OpenedRequestsCard(Actions);
-            var reply = MessageFactory.Attachment(attachment);
-
-            await stepContext.Context.SendActivityAsync(reply, cancellationToken);
+            await stepContext.Context.SendActivityAsync(MessageFactory.Attachment(attachment), cancellationToken);
             return await stepContext.PromptAsync(nameof(TextPrompt), new PromptOptions { }, cancellationToken);
         }
 
@@ -104,7 +100,6 @@
                 ContentType = AdaptiveCard.ContentType,
                 Content = card
             };
-
             return attachment;
         }
     }

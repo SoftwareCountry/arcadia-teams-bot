@@ -15,7 +15,6 @@
     public class RequestsTypeDialog : ComponentDialog
     {
         private const string Back = "Back";
-        const string Username = "vyacheslav.lasukov@arcadia.spb.ru";
         private readonly IMediator mediator;
 
         public RequestsTypeDialog(IMediator mediator) : base(nameof(RequestsTypeDialog))
@@ -24,8 +23,8 @@
 
             this.AddDialog(new WaterfallDialog(nameof(WaterfallDialog), new WaterfallStep[]
             {
-                TypeStep,
-                EndStep,
+                this.TypeStep,
+                this.EndStep,
             }));
 
             this.AddDialog(new NewRequestDialog());
@@ -85,7 +84,6 @@
                 Title = "Select the type of request which you want to create",
                 Buttons = Buttons,
             };
-
             return infoCard;
         }
     }
