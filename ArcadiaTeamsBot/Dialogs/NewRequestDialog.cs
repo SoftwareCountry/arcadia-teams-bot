@@ -15,7 +15,6 @@
 
     using MediatR;
 
-    using Microsoft.Bot.Builder;
     using Microsoft.Bot.Builder.Dialogs;
     using Microsoft.Bot.Schema;
 
@@ -31,7 +30,7 @@
 
         public NewRequestDialog(IMediator mediator, IRequestTypeUIFactory requestTypeUIFactory) : base(nameof(NewRequestDialog))
         {
-            this.mediator = mediator; 
+            this.mediator = mediator;
             this.requestTypeUiFactory = requestTypeUIFactory;
 
             this.AddDialog(new WaterfallDialog(nameof(WaterfallDialog), new WaterfallStep[]
@@ -45,11 +44,22 @@
             this.AddDialog(new TextPrompt("askForInput", this.AdaptiveCardVerify));
         }
 
-        private  async Task<bool> AdaptiveCardVerify(PromptValidatorContext<string> propmptContext, CancellationToken cancellationToken)
+        private async Task<bool> AdaptiveCardVerify(PromptValidatorContext<string> propmptContext, CancellationToken cancellationToken)
         {
             if (propmptContext.Context.Activity.Value != null)
             {
                 var data = (JObject)propmptContext.Context.Activity.Value;
+                var fields = new List<string>();
+                for (int i = 0; i < data.Count; i++)
+                {
+                    
+                    if (data["Title"] == data[i.ToString()])
+                    {
+                        break;
+                    }
+                    fields.Add(data[i.ToString()].ToString());
+                }
+
                 var dataForCreateRequest = new CreateRequestDTO
                 {
                     Title = data["Title"].ToString(),
@@ -58,10 +68,9 @@
                     PriorityId = (int?)data["PriorityId"],
                     ExecutionDate = (DateTime?)data["ExecutionDate"],
                     Username = Username,
-                    //FieldValues = (List<string>)data;
+                    FieldValues = fields
                 };
-
-                var sendRequestsQuery = new CreateNewServiceDeskRequestCommand(dataForCreateRequest); 
+                var sendRequestsQuery = new CreateNewServiceDeskRequestCommand(dataForCreateRequest);
                 await this.mediator.Send(sendRequestsQuery, cancellationToken);
             }
 
@@ -106,16 +115,17 @@
                 }
             };
 
-            foreach (var field in additionalFields)
+            var requestTypeUiFields = additionalFields.ToList();
+            for (int i = 0; i < requestTypeUiFields.Count(); i++)
             {
                 AdaptiveTextBlock textBlock;
                 AdaptiveInput input;
 
-                switch (field.FieldType)
+                switch (requestTypeUiFields[i].FieldType)
                 {
                     case RequestTypeUIFieldType.Year:
                         textBlock = new AdaptiveTextBlock("Choose a year");
-                        input = new AdaptiveDateInput { Id = field.FieldName, Placeholder = field.FieldName };
+                        input = new AdaptiveDateInput { Id = i.ToString(), Placeholder = requestTypeUiFields[i].FieldName };
                         break;
 
                     case RequestTypeUIFieldType.Select:
@@ -124,9 +134,9 @@
                         {
                             Type = AdaptiveChoiceSetInput.TypeName,
                             IsMultiSelect = false,
-                            Id = "Items",
+                            Id = i.ToString(),
                             Choices = requestTypeDTO.RequestTypeFields
-                                .First(rt => rt.FieldName == field.FieldName).Items
+                                .First(rt => rt.FieldName == requestTypeUiFields[i].FieldName).Items
                                 .Split(';')
                                 .Select(item => new AdaptiveChoice { Title = item, Value = item })
                                 .ToList()
@@ -136,17 +146,17 @@
 
                     case RequestTypeUIFieldType.Number:
                         textBlock = new AdaptiveTextBlock("Enter a number");
-                        input = new AdaptiveNumberInput { Id = field.FieldName, Placeholder = field.FieldName };
+                        input = new AdaptiveNumberInput { Id = i.ToString(), Placeholder = requestTypeUiFields[i].FieldName };
                         break;
 
                     case RequestTypeUIFieldType.String:
                         textBlock = new AdaptiveTextBlock("Enter a string");
-                        input = new AdaptiveTextInput { Id = field.FieldName, Placeholder = field.FieldName };
+                        input = new AdaptiveTextInput { Id = i.ToString(), Placeholder = requestTypeUiFields[i].FieldName };
                         break;
 
                     default:
                         textBlock = new AdaptiveTextBlock("Unknown field type. Enter a string");
-                        input = new AdaptiveTextInput { Id = field.FieldName, Placeholder = field.FieldName };
+                        input = new AdaptiveTextInput { Id = i.ToString(), Placeholder = requestTypeUiFields[i].FieldName };
                         break;
                 }
 
