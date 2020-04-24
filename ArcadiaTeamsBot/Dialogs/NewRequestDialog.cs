@@ -15,6 +15,7 @@
 
     using MediatR;
 
+    using Microsoft.Bot.Builder;
     using Microsoft.Bot.Builder.Dialogs;
     using Microsoft.Bot.Schema;
 
@@ -24,6 +25,7 @@
     {
         private const string Back = "Back";
         private const string Submit = "Submit";
+        private const string View = "View opened requests";
         private const string Username = "ekaterina.kuznetsova@arcadia.spb.ru";
         private readonly IRequestTypeUIFactory requestTypeUiFactory;
         private readonly IMediator mediator;
@@ -36,6 +38,7 @@
             this.AddDialog(new WaterfallDialog(nameof(WaterfallDialog), new WaterfallStep[]
             {
                 this.InputStep,
+                ChoiceStep,
                 EndStep
             }));
 
@@ -53,7 +56,7 @@
                 for (int i = 0; i < data.Count; i++)
                 {
                     
-                    if (data["Title"] == data[i.ToString()])
+                    if (data[i.ToString()] == null)
                     {
                         break;
                     }
@@ -73,8 +76,7 @@
                 var sendRequestsQuery = new CreateNewServiceDeskRequestCommand(dataForCreateRequest);
                 await this.mediator.Send(sendRequestsQuery, cancellationToken);
             }
-
-            return false;
+            return true;
         }
 
         private async Task<DialogTurnResult> InputStep(WaterfallStepContext stepContext, CancellationToken cancellationToken)
@@ -88,7 +90,7 @@
             {
                 new AdaptiveTextBlock() { Text = "Input all data of request", Weight = AdaptiveTextWeight.Bolder, Size = AdaptiveTextSize.Large },
 
-                new AdaptiveTextInput { Id = "Type", Placeholder = "Type", Value = typeId.ToString()},
+                new AdaptiveTextInput { Id = "Type", Placeholder = "Type", Value = typeId.ToString(), IsVisible = false},
 
                 new AdaptiveTextBlock("Enter title of request"),
                 new AdaptiveTextInput { Id = "Title", Placeholder = "Title", Value = null},
@@ -96,15 +98,15 @@
                 new AdaptiveTextBlock("Enter description of request"),
                 new AdaptiveTextInput { Id = "Description", Placeholder = "Description", Value = null },
 
-                new AdaptiveTextBlock("Enter execute date"),
-                new AdaptiveDateInput { Id = "ExecuteDate", Value = null },
+                new AdaptiveTextBlock("Enter execution date"),
+                new AdaptiveDateInput { Id = "ExecutionDate", Value = null },
 
                 new AdaptiveTextBlock("Choose a priority"),
                 new AdaptiveChoiceSetInput
                 {
                     Type = AdaptiveChoiceSetInput.TypeName,
-                    Value = "2",
                     IsMultiSelect = false,
+                    Value = "2",
                     Id = "PriorityId",
                     Choices = new List<AdaptiveChoice>
                     {
@@ -159,25 +161,16 @@
                         input = new AdaptiveTextInput { Id = i.ToString(), Placeholder = requestTypeUiFields[i].FieldName };
                         break;
                 }
-
                 body.Add(textBlock);
                 body.Add(input);
             }
 
             var Actions = new List<AdaptiveAction>();
-            var backAction = new AdaptiveSubmitAction
-            {
-                Title = Back,
-                Data = Back,
-            };
-
             var submitAction = new AdaptiveSubmitAction()
             {
                 Title = Submit,
             };
-
             Actions.Add(submitAction);
-            //Actions.Add(backAction);
 
             var attachment = InputCard(body, Actions);
             var opts = new PromptOptions()
@@ -188,10 +181,20 @@
                     Attachments = new List<Attachment> { attachment }
                 }
             };
-
+            
             await stepContext.Context.SendActivityAsync(opts.Prompt, cancellationToken);
             opts.Prompt = new Activity(type: ActivityTypes.Typing);
             return await stepContext.PromptAsync("askForInput", opts, cancellationToken);
+        }
+
+        private static async Task<DialogTurnResult> ChoiceStep(WaterfallStepContext stepContext, CancellationToken cancellationToken)
+        {
+            var actions = ActionCard();
+            return await stepContext.PromptAsync(nameof(TextPrompt),
+                new PromptOptions
+                {
+                    Prompt = (Activity)MessageFactory.Attachment(actions),
+                }, cancellationToken);
         }
 
         private static async Task<DialogTurnResult> EndStep(WaterfallStepContext stepContext, CancellationToken cancellationToken)
@@ -200,8 +203,13 @@
             {
                 return await stepContext.BeginDialogAsync(nameof(RequestsTypeDialog), null, cancellationToken);
             }
+            if ((string)stepContext.Result == View)
+            {
+                return await stepContext.BeginDialogAsync(nameof(OpenedRequestsDialog), null, cancellationToken);
+            }
             return await stepContext.ContinueDialogAsync(cancellationToken);
         }
+
         public static Attachment InputCard(List<AdaptiveElement> body, List<AdaptiveAction> actions)
         {
             var card = new AdaptiveCard
@@ -215,8 +223,20 @@
                 ContentType = AdaptiveCard.ContentType,
                 Content = card
             };
-
             return attachment;
+        }
+
+        public static Attachment ActionCard()
+        {
+            var infoCard = new HeroCard
+            {
+                Buttons = new List<CardAction>()
+                {
+                    new CardAction(ActionTypes.ImBack, Back, value: Back),
+                    new CardAction(ActionTypes.ImBack, View, value: View)
+                }
+            };
+            return infoCard.ToAttachment();
         }
     }
 }
