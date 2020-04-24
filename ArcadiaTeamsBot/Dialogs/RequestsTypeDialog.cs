@@ -23,8 +23,8 @@
             this.mediator = mediator;
             this.AddDialog(new WaterfallDialog(nameof(WaterfallDialog), new WaterfallStep[]
             {
-                TypeStep,
-                EndStep,
+                this.TypeStep,
+                this.EndStep,
             }));
 
             this.AddDialog(new NewRequestDialog(mediator, request));

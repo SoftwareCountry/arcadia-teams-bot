@@ -143,7 +143,6 @@
                                 .Select(item => new AdaptiveChoice { Title = item, Value = item })
                                 .ToList()
                         };
-
                         break;
 
                     case RequestTypeUIFieldType.Number:
