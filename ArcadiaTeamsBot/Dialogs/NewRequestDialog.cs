@@ -6,170 +6,207 @@
     using System.Threading;
     using System.Threading.Tasks;
 
+    using AdaptiveCards;
+
     using ArcadiaTeamsBot.CQRS.Abstractions.Commands;
     using ArcadiaTeamsBot.ServiceDesk.Abstractions.DTOs;
+    using ArcadiaTeamsBot.ServiceDesk.Requests.RequestType;
     using ArcadiaTeamsBot.ServiceDesk.Requests.RequestTypeFactory;
 
     using MediatR;
 
     using Microsoft.Bot.Builder;
     using Microsoft.Bot.Builder.Dialogs;
-    using Microsoft.Bot.Builder.Dialogs.Choices;
+    using Microsoft.Bot.Schema;
+
+    using Newtonsoft.Json.Linq;
 
     public class NewRequestDialog : ComponentDialog
     {
-        private const string back = "Back";
-        private const string send = "Send";
-        private const string username = "ekaterina.kuznetsova@arcadia.spb.ru";
-        private readonly IRequestTypeUIFactory requestTypeUIFactory;
+        private const string Back = "Back";
+        private const string Submit = "Submit";
+        private const string Username = "ekaterina.kuznetsova@arcadia.spb.ru";
+        private readonly IRequestTypeUIFactory requestTypeUiFactory;
         private readonly IMediator mediator;
 
-        public NewRequestDialog(IRequestTypeUIFactory requestTypeUIFactory, IMediator mediator) : base(nameof(NewRequestDialog))
+        public NewRequestDialog(IMediator mediator, IRequestTypeUIFactory requestTypeUIFactory) : base(nameof(NewRequestDialog))
         {
-            this.requestTypeUIFactory = requestTypeUIFactory;
-            this.mediator = mediator;
-            this.AddDialog(new AdditionalFieldsDialog());
+            this.mediator = mediator; 
+            this.requestTypeUiFactory = requestTypeUIFactory;
 
             this.AddDialog(new WaterfallDialog(nameof(WaterfallDialog), new WaterfallStep[]
             {
-                this.TitleStep,
-                DescriptionStep,
-                PriorityStep,
-                ExecutionDateStep,
-                SaveDateStep,
-                this.AdditionalFieldsStep,
-                ConfirmStep,
-                this.CreateRequestStep
+                this.InputStep,
+                EndStep
             }));
 
             this.AddDialog(new TextPrompt(nameof(TextPrompt)));
-            this.AddDialog(new ChoicePrompt(nameof(ChoicePrompt)));
-            this.AddDialog(new DateTimePrompt(nameof(DateTimePrompt)));
             this.InitialDialogId = nameof(WaterfallDialog);
+            this.AddDialog(new TextPrompt("askForInput", this.AdaptiveCardVerify));
         }
 
-        private async Task<DialogTurnResult> TitleStep(WaterfallStepContext stepContext, CancellationToken cancellationToken)
+        private  async Task<bool> AdaptiveCardVerify(PromptValidatorContext<string> propmptContext, CancellationToken cancellationToken)
+        {
+            if (propmptContext.Context.Activity.Value != null)
+            {
+                var data = (JObject)propmptContext.Context.Activity.Value;
+                var dataForCreateRequest = new CreateRequestDTO
+                {
+                    Title = data["Title"].ToString(),
+                    Description = data["Description"].ToString(),
+                    Type = new CreateRequestTypeDTO { Id = (int)data["Type"] },
+                    PriorityId = (int?)data["PriorityId"],
+                    ExecutionDate = (DateTime?)data["ExecutionDate"],
+                    Username = Username,
+                    //FieldValues = (List<string>)data;
+                };
+
+                var sendRequestsQuery = new CreateNewServiceDeskRequestCommand(dataForCreateRequest); 
+                await this.mediator.Send(sendRequestsQuery, cancellationToken);
+            }
+
+            return false;
+        }
+
+        private async Task<DialogTurnResult> InputStep(WaterfallStepContext stepContext, CancellationToken cancellationToken)
         {
             var requestTypeDTO = (ServiceDeskRequestTypeDTO)stepContext.Options;
+            var typeId = requestTypeDTO.Id;
 
-            stepContext.Values["Type"] = requestTypeDTO.Id;
-            stepContext.Values["Fields"] = requestTypeDTO.RequestTypeFields;
-            stepContext.Values["DTO"] = requestTypeDTO;
+            var additionalFields = this.requestTypeUiFactory.CreateRequestTypeUI(requestTypeDTO).RequestTypeUIFields;
 
-            return await stepContext.PromptAsync(nameof(TextPrompt),
-                new PromptOptions
-                {
-                    Prompt = MessageFactory.Text("Enter title")
-                }, cancellationToken);
-        }
-
-        private static async Task<DialogTurnResult> DescriptionStep(WaterfallStepContext stepContext, CancellationToken cancellationToken)
-        {
-            stepContext.Values["Title"] = stepContext.Result;
-
-            return await stepContext.PromptAsync(nameof(TextPrompt),
-                new PromptOptions
-                {
-                    Prompt = MessageFactory.Text("Enter description")
-                }, cancellationToken);
-        }
-
-        private static async Task<DialogTurnResult> PriorityStep(WaterfallStepContext stepContext, CancellationToken cancellationToken)
-        {
-            stepContext.Values["Description"] = stepContext.Result;
-
-            return await stepContext.PromptAsync(nameof(ChoicePrompt),
-                new PromptOptions
-                {
-                    Prompt = MessageFactory.Text("Choose priority"),
-                    Choices = ChoiceFactory.ToChoices(new List<string> { "Low", "Default", "High" })
-                }, cancellationToken);
-        }
-
-        private static async Task<DialogTurnResult> ExecutionDateStep(WaterfallStepContext stepContext, CancellationToken cancellationToken)
-        {
-            stepContext.Values["PriorityId"] = stepContext.Result switch
+            var body = new List<AdaptiveElement>
             {
-                "Low" => "1",
-                "High" => "3",
-                _ => "2"
+                new AdaptiveTextBlock() { Text = "Input all data of request", Weight = AdaptiveTextWeight.Bolder, Size = AdaptiveTextSize.Large },
+
+                new AdaptiveTextInput { Id = "Type", Placeholder = "Type", Value = typeId.ToString()},
+
+                new AdaptiveTextBlock("Enter title of request"),
+                new AdaptiveTextInput { Id = "Title", Placeholder = "Title", Value = null},
+
+                new AdaptiveTextBlock("Enter description of request"),
+                new AdaptiveTextInput { Id = "Description", Placeholder = "Description", Value = null },
+
+                new AdaptiveTextBlock("Enter execute date"),
+                new AdaptiveDateInput { Id = "ExecuteDate", Value = null },
+
+                new AdaptiveTextBlock("Choose a priority"),
+                new AdaptiveChoiceSetInput
+                {
+                    Type = AdaptiveChoiceSetInput.TypeName,
+                    Value = "2",
+                    IsMultiSelect = false,
+                    Id = "PriorityId",
+                    Choices = new List<AdaptiveChoice>
+                    {
+                        new AdaptiveChoice { Title = "Low", Value = "1" },
+                        new AdaptiveChoice { Title = "Default", Value = "2" },
+                        new AdaptiveChoice { Title = "High", Value = "3" }
+                    }
+                }
             };
 
-            return await stepContext.PromptAsync(nameof(DateTimePrompt),
-                new PromptOptions
+            foreach (var field in additionalFields)
+            {
+                AdaptiveTextBlock textBlock;
+                AdaptiveInput input;
+
+                switch (field.FieldType)
                 {
-                    Prompt = MessageFactory.Text("Enter execution date")
-                }, cancellationToken);
+                    case RequestTypeUIFieldType.Year:
+                        textBlock = new AdaptiveTextBlock("Choose a year");
+                        input = new AdaptiveDateInput { Id = field.FieldName, Placeholder = field.FieldName };
+                        break;
+
+                    case RequestTypeUIFieldType.Select:
+                        textBlock = new AdaptiveTextBlock("Choose an item");
+                        input = new AdaptiveChoiceSetInput
+                        {
+                            Type = AdaptiveChoiceSetInput.TypeName,
+                            IsMultiSelect = false,
+                            Id = "Items",
+                            Choices = requestTypeDTO.RequestTypeFields
+                                .First(rt => rt.FieldName == field.FieldName).Items
+                                .Split(';')
+                                .Select(item => new AdaptiveChoice { Title = item, Value = item })
+                                .ToList()
+                        };
+
+                        break;
+
+                    case RequestTypeUIFieldType.Number:
+                        textBlock = new AdaptiveTextBlock("Enter a number");
+                        input = new AdaptiveNumberInput { Id = field.FieldName, Placeholder = field.FieldName };
+                        break;
+
+                    case RequestTypeUIFieldType.String:
+                        textBlock = new AdaptiveTextBlock("Enter a string");
+                        input = new AdaptiveTextInput { Id = field.FieldName, Placeholder = field.FieldName };
+                        break;
+
+                    default:
+                        textBlock = new AdaptiveTextBlock("Unknown field type. Enter a string");
+                        input = new AdaptiveTextInput { Id = field.FieldName, Placeholder = field.FieldName };
+                        break;
+                }
+
+                body.Add(textBlock);
+                body.Add(input);
+            }
+
+            var Actions = new List<AdaptiveAction>();
+            var backAction = new AdaptiveSubmitAction
+            {
+                Title = Back,
+                Data = Back,
+            };
+
+            var submitAction = new AdaptiveSubmitAction()
+            {
+                Title = Submit,
+            };
+
+            Actions.Add(submitAction);
+            //Actions.Add(backAction);
+
+            var attachment = InputCard(body, Actions);
+            var opts = new PromptOptions()
+            {
+                Prompt = new Activity
+                {
+                    Type = ActivityTypes.Message,
+                    Attachments = new List<Attachment> { attachment }
+                }
+            };
+
+            await stepContext.Context.SendActivityAsync(opts.Prompt, cancellationToken);
+            opts.Prompt = new Activity(type: ActivityTypes.Typing);
+            return await stepContext.PromptAsync("askForInput", opts, cancellationToken);
         }
 
-        private async Task<DialogTurnResult> SaveDateStep(WaterfallStepContext stepContext, CancellationToken cancellationToken)
+        private static async Task<DialogTurnResult> EndStep(WaterfallStepContext stepContext, CancellationToken cancellationToken)
         {
-            var dateTime = ((IList<DateTimeResolution>)stepContext.Result).First();
-            stepContext.Values["ExecutionDate"] = Convert.ToDateTime(dateTime.Value);
-
+            if ((string)stepContext.Result == Back)
+            {
+                return await stepContext.BeginDialogAsync(nameof(RequestsTypeDialog), null, cancellationToken);
+            }
             return await stepContext.ContinueDialogAsync(cancellationToken);
         }
-
-        private async Task<DialogTurnResult> AdditionalFieldsStep(WaterfallStepContext stepContext, CancellationToken cancellationToken)
+        public static Attachment InputCard(List<AdaptiveElement> body, List<AdaptiveAction> actions)
         {
-            var additionalFields = this.requestTypeUIFactory.CreateRequestTypeUI((ServiceDeskRequestTypeDTO)stepContext.Values["DTO"]).RequestTypeUIFields.ToList();
-
-            if (!additionalFields.Any())
+            var card = new AdaptiveCard
             {
-                return await stepContext.ContinueDialogAsync(cancellationToken: cancellationToken);
-            }
-            var fields = new List<string>();
-
-            for (var i = 0; i < additionalFields.Count; i++)
-            {
-                await stepContext.BeginDialogAsync(nameof(AdditionalFieldsDialog), additionalFields[i], cancellationToken);
-
-                stepContext.Values[(7 + i).ToString()] = stepContext.Result;
-                fields.Add(stepContext.Values[(7 + i).ToString()].ToString());
-            }
-
-            stepContext.Values["Fields"] = fields;
-            return await stepContext.PromptAsync(nameof(TextPrompt), new PromptOptions { }, cancellationToken);
-        }
-
-        private static async Task<DialogTurnResult> ConfirmStep(WaterfallStepContext stepContext, CancellationToken cancellationToken)
-        {
-            return await stepContext.PromptAsync(nameof(ChoicePrompt),
-                new PromptOptions
-                {
-                    Prompt = MessageFactory.Text("Send or go back?"),
-                    Choices = ChoiceFactory.ToChoices(new List<string> { send, back })
-                }, cancellationToken);
-        }
-
-        private async Task<DialogTurnResult> CreateRequestStep(WaterfallStepContext stepContext, CancellationToken cancellationToken)
-        {
-            var data = new CreateRequestDTO
-            {
-                Title = stepContext.Values["Title"].ToString(),
-                Description = stepContext.Values["Description"].ToString(),
-                Type = new CreateRequestTypeDTO { Id = (int)stepContext.Values["Type"] },
-                PriorityId = Convert.ToInt32(stepContext.Values["PriorityId"]),
-                ExecutionDate = (DateTime?)stepContext.Values["ExecutionDate"],
-                Username = username,
-                FieldValues = (List<string>)stepContext.Values["Fields"]
+                Body = body,
+                Actions = actions
             };
 
-            //data.FieldValues = new List<string>{"bla","bla"};
-
-            switch (((FoundChoice)stepContext.Result).Value)
+            var attachment = new Attachment
             {
-                case send:
-                    var sendRequestsQuery = new CreateNewServiceDeskRequestCommand(data);
-                    await this.mediator.Send(sendRequestsQuery, cancellationToken);
-                    return await stepContext.BeginDialogAsync(nameof(OpenedRequestsDialog), null, cancellationToken);
+                ContentType = AdaptiveCard.ContentType,
+                Content = card
+            };
 
-                case back:
-                    return await stepContext.ReplaceDialogAsync(nameof(RequestsTypeDialog), null, cancellationToken);
-
-                default:
-                    return await stepContext.ContinueDialogAsync(cancellationToken);
-            }
+            return attachment;
         }
     }
 }

@@ -27,7 +27,7 @@
                 EndStep,
             }));
 
-            this.AddDialog(new NewRequestDialog(request, mediator));
+            this.AddDialog(new NewRequestDialog(mediator, request));
             this.AddDialog(new TextPrompt(nameof(TextPrompt)));
             this.InitialDialogId = nameof(WaterfallDialog);
         }
