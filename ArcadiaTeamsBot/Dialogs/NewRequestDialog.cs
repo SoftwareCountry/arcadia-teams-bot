@@ -26,7 +26,7 @@
         private const string Back = "Back";
         private const string Submit = "Submit";
         private const string ViewOpened = "View opened requests";
-        private const string Username = "ekaterina.kuznetsova@arcadia.spb.ru";
+        private const string Username = "vyacheslav.lasukov@arcadia.spb.ru";
         private readonly IRequestTypeUIFactory requestTypeUiFactory;
         private readonly IMediator mediator;
 
@@ -71,9 +71,9 @@
             {
                 Title = data["Title"].ToString(),
                 Description = data["Description"].ToString(),
-                Type = new CreateRequestTypeDTO { Id = (int)data["Type"] },
-                PriorityId = (int?)data["PriorityId"],
-                ExecutionDate = (DateTime?)data["ExecutionDate"],
+                Type = new CreateRequestTypeDTO { Id = Convert.ToInt32(data["Type"].ToString()) },
+                Priority = Convert.ToInt32(data["Priority"].ToString()),
+                ExecutionDate = Convert.ToDateTime(data["ExecutionDate"].ToString()),
                 Username = Username,
                 FieldValues = fields
             };
@@ -111,8 +111,7 @@
                 {
                     Type = AdaptiveChoiceSetInput.TypeName,
                     IsMultiSelect = false,
-                    Value = "2",
-                    Id = "PriorityId",
+                    Id = "Priority",
                     Choices = new List<AdaptiveChoice>
                     {
                         new AdaptiveChoice { Title = "Low", Value = "1" },
@@ -124,7 +123,7 @@
 
             var requestTypeUIFields = additionalFields.ToList();
 
-            for (var i = 0; i < requestTypeUIFields.Count(); i++)
+            for (var i = 0; i < requestTypeUIFields.Count; i++)
             {
                 AdaptiveTextBlock textBlock;
                 AdaptiveInput input;

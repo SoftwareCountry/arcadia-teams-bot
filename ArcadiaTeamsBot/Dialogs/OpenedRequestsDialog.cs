@@ -17,7 +17,7 @@
     public class OpenedRequestsDialog : ComponentDialog
     {
         private const string Back = "Back";
-        private const string username = "ekaterina.kuznetsova@arcadia.spb.ru";
+        private const string username = "vyacheslav.lasukov@arcadia.spb.ru";
         private readonly IMediator mediator;
 
         public OpenedRequestsDialog(IMediator mediator) : base(nameof(OpenedRequestsDialog))
