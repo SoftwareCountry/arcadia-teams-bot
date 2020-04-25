@@ -53,6 +53,11 @@
         {
             var formData = (JObject)promptContext.Context.Activity.Value;
 
+            if (formData == null)
+            {
+                return false;
+            }
+
             if (formData["Button"].ToString() == Cancel)
             {
                 return true;
