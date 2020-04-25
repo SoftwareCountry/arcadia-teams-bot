@@ -15,7 +15,7 @@
     public class MainDialog : ComponentDialog
     {
         private const string NewRequest = "New request";
-        private const string OpenedRequests = "See current requests";
+        private const string OpenedRequests = "Opened requests";
 
         public MainDialog(IMediator mediator, IRequestTypeUIFactory request) : base(nameof(MainDialog))
         {
