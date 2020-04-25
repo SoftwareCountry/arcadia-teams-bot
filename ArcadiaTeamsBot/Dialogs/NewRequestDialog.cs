@@ -8,6 +8,7 @@
 
     using AdaptiveCards;
 
+    using ArcadiaTeamsBot.CQRS.Abstractions;
     using ArcadiaTeamsBot.CQRS.Abstractions.Commands;
     using ArcadiaTeamsBot.ServiceDesk.Abstractions.DTOs;
     using ArcadiaTeamsBot.ServiceDesk.Requests.RequestType;
@@ -23,9 +24,10 @@
 
     public class NewRequestDialog : ComponentDialog
     {
-        private const string Back = "Back";
         private const string Submit = "Submit";
-        private const string ViewOpened = "View opened requests";
+        private const string Cancel = "Cancel";
+        private const string NewRequest = "New request";
+        private const string ViewOpened = "Opened requests";
         private const string Username = "vyacheslav.lasukov@arcadia.spb.ru";
         private readonly IRequestTypeUIFactory requestTypeUiFactory;
         private readonly IMediator mediator;
@@ -49,36 +51,60 @@
 
         private async Task<bool> AdaptiveCardVerify(PromptValidatorContext<string> promptContext, CancellationToken cancellationToken)
         {
-            if (promptContext.Context.Activity.Value == null)
+            var formData = (JObject)promptContext.Context.Activity.Value;
+
+            if (formData["Button"].ToString() == Cancel)
             {
                 return true;
             }
 
-            var data = (JObject)promptContext.Context.Activity.Value;
-            var fields = new List<string>();
+            var additionalFields = new List<string>();
 
-            for (var i = 0; i < data.Count; i++)
+            for (var i = 0; i < formData.Count; i++)
             {
-                if (data[i.ToString()] == null)
+                if (!formData.TryGetValue(i.ToString(), out var additionalField))
                 {
-                    break;
+                    continue;
                 }
 
-                fields.Add(data[i.ToString()].ToString());
+                additionalFields.Add(additionalField.ToString());
             }
 
-            var dataForCreateRequest = new CreateRequestDTO
+            if (string.IsNullOrEmpty(formData["Title"].ToString())
+                || string.IsNullOrEmpty(formData["Description"].ToString())
+                || string.IsNullOrEmpty(formData["ExecutionDate"].ToString())
+                || additionalFields.Any(field => field == null))
             {
-                Title = data["Title"].ToString(),
-                Description = data["Description"].ToString(),
-                Type = new CreateRequestTypeDTO { Id = Convert.ToInt32(data["Type"].ToString()) },
-                Priority = Convert.ToInt32(data["Priority"].ToString()),
-                ExecutionDate = Convert.ToDateTime(data["ExecutionDate"].ToString()),
+                return false;
+            }
+
+            var createRequestTypeFields =
+                (await this.mediator.Send(new GetServiceDeskRequestTypesQuery(), cancellationToken))
+                .First(requestTypeDTO => requestTypeDTO.Id == Convert.ToInt32(formData["TypeId"].ToString()))
+                .RequestTypeFields
+                .Select(requestTypeFieldDTO => new CreateRequestTypeFieldDTO
+                {
+                    Id = requestTypeFieldDTO.Id,
+                    FieldName = requestTypeFieldDTO.FieldName,
+                    IsMandatory = requestTypeFieldDTO.IsMandatory
+                });
+
+            var newRequest = new CreateRequestDTO
+            {
+                Title = formData["Title"].ToString(),
+                Description = formData["Description"].ToString(),
+                Priority = Convert.ToInt32(formData["Priority"].ToString()),
+                ExecutionDate = Convert.ToDateTime(formData["ExecutionDate"].ToString()),
                 Username = Username,
-                FieldValues = fields
+                FieldValues = additionalFields,
+                Type = new CreateRequestTypeDTO
+                {
+                    Id = Convert.ToInt32(formData["TypeId"].ToString()),
+                    RequestTypeFields = createRequestTypeFields
+                }
             };
 
-            var sendRequestsQuery = new CreateNewServiceDeskRequestCommand(dataForCreateRequest);
+            var sendRequestsQuery = new CreateNewServiceDeskRequestCommand(newRequest);
             await this.mediator.Send(sendRequestsQuery, cancellationToken);
 
             return true;
@@ -87,7 +113,6 @@
         private async Task<DialogTurnResult> InputStep(WaterfallStepContext stepContext, CancellationToken cancellationToken)
         {
             var requestTypeDTO = (ServiceDeskRequestTypeDTO)stepContext.Options;
-            var typeId = requestTypeDTO.Id;
 
             var additionalFields = this.requestTypeUiFactory.CreateRequestTypeUI(requestTypeDTO).RequestTypeUIFields;
 
@@ -95,7 +120,7 @@
             {
                 new AdaptiveTextBlock { Text = requestTypeDTO.Title, Weight = AdaptiveTextWeight.Bolder, Size = AdaptiveTextSize.Large },
 
-                new AdaptiveTextInput { Id = "Type", Placeholder = "Type", Value = typeId.ToString(), IsVisible = false },
+                new AdaptiveTextInput { Id = "TypeId", Placeholder = "Type", Value = requestTypeDTO.Id.ToString(), IsVisible = false },
 
                 new AdaptiveTextBlock("Title"),
                 new AdaptiveTextInput { Id = "Title", Placeholder = "Title", Value = null },
@@ -111,6 +136,7 @@
                 {
                     Type = AdaptiveChoiceSetInput.TypeName,
                     IsMultiSelect = false,
+                    Value = "2",
                     Id = "Priority",
                     Choices = new List<AdaptiveChoice>
                     {
@@ -171,30 +197,36 @@
                 body.Add(input);
             }
 
-            var Actions = new List<AdaptiveAction>();
-
-            var submitAction = new AdaptiveSubmitAction
+            var Actions = new List<AdaptiveAction>
             {
-                Title = Submit
+                new AdaptiveSubmitAction
+                {
+                    Title = Submit,
+                    Data = new { Button = Submit }
+                },
+                new AdaptiveSubmitAction
+                {
+                    Title = Cancel,
+                    Data = new { Button = Cancel }
+                }
             };
-
-            Actions.Add(submitAction);
 
             var attachment = InputCard(body, Actions);
 
-            var opts = new PromptOptions
+            var promptOptions = new PromptOptions
             {
                 Prompt = new Activity
                 {
                     Type = ActivityTypes.Message,
                     Attachments = new List<Attachment> { attachment }
-                }
+                },
+                RetryPrompt = MessageFactory.Text("Not all fields are filled. Repeat")
             };
 
-            await stepContext.Context.SendActivityAsync(opts.Prompt, cancellationToken);
-            opts.Prompt = new Activity(ActivityTypes.Typing);
+            await stepContext.Context.SendActivityAsync(promptOptions.Prompt, cancellationToken);
+            promptOptions.Prompt = new Activity(ActivityTypes.Typing);
 
-            return await stepContext.PromptAsync("askForInput", opts, cancellationToken);
+            return await stepContext.PromptAsync("askForInput", promptOptions, cancellationToken);
         }
 
         private static async Task<DialogTurnResult> ChoiceStep(WaterfallStepContext stepContext, CancellationToken cancellationToken)
@@ -205,14 +237,15 @@
                 new PromptOptions
                 {
                     Prompt = (Activity)MessageFactory.Attachment(actions)
-                }, cancellationToken);
+                },
+                cancellationToken);
         }
 
         private static async Task<DialogTurnResult> EndStep(WaterfallStepContext stepContext, CancellationToken cancellationToken)
         {
             return (string)stepContext.Result switch
             {
-                Back => await stepContext.BeginDialogAsync(nameof(RequestsTypeDialog), null, cancellationToken),
+                NewRequest => await stepContext.BeginDialogAsync(nameof(RequestsTypeDialog), null, cancellationToken),
                 ViewOpened => await stepContext.BeginDialogAsync(nameof(OpenedRequestsDialog), null, cancellationToken),
                 _ => await stepContext.ContinueDialogAsync(cancellationToken)
             };
@@ -239,9 +272,11 @@
         {
             var infoCard = new HeroCard
             {
+                Title = "You can create a new request or view opened requests.",
+                Subtitle = "What do you want to do?",
                 Buttons = new List<CardAction>
                 {
-                    new CardAction(ActionTypes.ImBack, Back, value: Back),
+                    new CardAction(ActionTypes.ImBack, NewRequest, value: NewRequest),
                     new CardAction(ActionTypes.ImBack, ViewOpened, value: ViewOpened)
                 }
             };
