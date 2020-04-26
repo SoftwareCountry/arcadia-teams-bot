@@ -1,10 +1,12 @@
 ﻿namespace ArcadiaTeamsBot.Dialogs
 {
     using System.Collections.Generic;
+    using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
 
     using ArcadiaTeamsBot.CQRS.Abstractions;
+    using ArcadiaTeamsBot.ServiceDesk.Abstractions.DTOs;
     using ArcadiaTeamsBot.ServiceDesk.Requests.RequestTypeFactory;
 
     using MediatR;
@@ -16,15 +18,17 @@
     public class RequestsTypeDialog : ComponentDialog
     {
         private const string Back = "Back";
+        private static IEnumerable<ServiceDeskRequestTypeDTO> requestTypes;
         private readonly IMediator mediator;
 
         public RequestsTypeDialog(IMediator mediator, IRequestTypeUIFactory request) : base(nameof(RequestsTypeDialog))
         {
             this.mediator = mediator;
+
             this.AddDialog(new WaterfallDialog(nameof(WaterfallDialog), new WaterfallStep[]
             {
                 this.TypeStep,
-                this.EndStep,
+                this.EndStep
             }));
 
             this.AddDialog(new NewRequestDialog(mediator, request));
@@ -34,58 +38,52 @@
 
         private async Task<DialogTurnResult> TypeStep(WaterfallStepContext stepContext, CancellationToken cancellationToken)
         {
-            var getTypesQuery = new GetServiceDeskRequestTypesQuery();
-            var requestsTypes = await this.mediator.Send(getTypesQuery, cancellationToken);
+            var getRequestTypesQuery = new GetServiceDeskRequestTypesQuery();
+            requestTypes = await this.mediator.Send(getRequestTypesQuery, cancellationToken);
 
-            var Buttons = new List<CardAction>();
-            foreach (var type in requestsTypes)
-            {
-                var button = new CardAction(ActionTypes.ImBack, type.Title, value: type.Title);
-                Buttons.Add(button);
-            }
+            var buttons = requestTypes
+                .Select(type => new CardAction(ActionTypes.ImBack, type.Title, value: type.Title))
+                .ToList();
 
-            var backButton = new CardAction(ActionTypes.ImBack, Back, value: Back);
-            Buttons.Add(backButton);
+            buttons.Add(new CardAction(ActionTypes.ImBack, Back, value: Back));
 
-            var attachments = new[]
-            {
-                GetInfoCard(Buttons).ToAttachment()
-            };
-            return await stepContext.PromptAsync(nameof(TextPrompt),
+            return await stepContext.PromptAsync(
+                nameof(TextPrompt),
                 new PromptOptions
                 {
-                    Prompt = (Activity)MessageFactory.Attachment(attachments),
-                }, cancellationToken);
+                    Prompt = (Activity)MessageFactory.Attachment(InfoCard(buttons).ToAttachment())
+                },
+                cancellationToken);
         }
 
         private async Task<DialogTurnResult> EndStep(WaterfallStepContext stepContext, CancellationToken cancellationToken)
         {
-            var getTypesQuery = new GetServiceDeskRequestTypesQuery();
-            var requestsTypes = await this.mediator.Send(getTypesQuery, cancellationToken);
-            foreach (var type in requestsTypes)
+            if (requestTypes.Any(type => type.Title == (string)stepContext.Result))
             {
-                if ((string)stepContext.Result == type.Title)
-                {
-                    return await stepContext.BeginDialogAsync(nameof(NewRequestDialog), type, cancellationToken);
-                }
+                return await stepContext.BeginDialogAsync(
+                    nameof(NewRequestDialog),
+                    requestTypes.First(type => type.Title == (string)stepContext.Result),
+                    cancellationToken);
             }
-            
-            if ((string)stepContext.Result == Back)
+
+            switch (stepContext.Result)
             {
-                return await stepContext.BeginDialogAsync(nameof(MainDialog), null, cancellationToken);
+                case Back:
+                    await stepContext.EndDialogAsync(null, cancellationToken);
+                    return await stepContext.BeginDialogAsync(nameof(MainDialog), null, cancellationToken);
+
+                default:
+                    return await stepContext.ReplaceDialogAsync(nameof(RequestsTypeDialog), null, cancellationToken);
             }
-            return await stepContext.ContinueDialogAsync(cancellationToken: cancellationToken);
         }
 
-        public static HeroCard GetInfoCard(List<CardAction> Buttons)
+        private static HeroCard InfoCard(IList<CardAction> Buttons)
         {
-            var infoCard = new HeroCard
+            return new HeroCard
             {
                 Title = "Select the type of request which you want to create",
-                Buttons = Buttons,
+                Buttons = Buttons
             };
-
-            return infoCard;
         }
     }
 }

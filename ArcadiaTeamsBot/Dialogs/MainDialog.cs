@@ -24,53 +24,47 @@
 
             this.AddDialog(new WaterfallDialog(nameof(WaterfallDialog), new WaterfallStep[]
             {
-                ChoiceStep,
-                RequestStep,
+                this.ChoiceStep,
+                this.RequestStep
             }));
 
             this.AddDialog(new TextPrompt(nameof(TextPrompt)));
             this.InitialDialogId = nameof(WaterfallDialog);
         }
 
-        private static async Task<DialogTurnResult> ChoiceStep(WaterfallStepContext stepContext, CancellationToken cancellationToken)
+        private async Task<DialogTurnResult> ChoiceStep(WaterfallStepContext stepContext, CancellationToken cancellationToken)
         {
-            var attachments = new[]
-            {
-                GetChoiceCard().ToAttachment()
-            };
-            return await stepContext.PromptAsync(nameof(TextPrompt),
+            return await stepContext.PromptAsync(
+                nameof(TextPrompt),
                 new PromptOptions
                 {
-                    Prompt = (Activity)MessageFactory.Attachment(attachments),
-                }, cancellationToken);
+                    Prompt = (Activity)MessageFactory.Attachment(ChoiceCard().ToAttachment())
+                },
+                cancellationToken);
         }
 
-        private static async Task<DialogTurnResult> RequestStep(WaterfallStepContext stepContext, CancellationToken cancellationToken)
+        private async Task<DialogTurnResult> RequestStep(WaterfallStepContext stepContext, CancellationToken cancellationToken)
         {
-            switch ((string)stepContext.Result)
+            return stepContext.Result switch
             {
-                case NewRequest:
-                    return await stepContext.BeginDialogAsync(nameof(RequestsTypeDialog), null, cancellationToken);
-                case OpenedRequests:
-                    return await stepContext.BeginDialogAsync(nameof(OpenedRequestsDialog), null, cancellationToken);
-                default:
-                    return await stepContext.ReplaceDialogAsync(nameof(MainDialog), null, cancellationToken);
-            }
+                NewRequest => await stepContext.BeginDialogAsync(nameof(RequestsTypeDialog), null, cancellationToken),
+                OpenedRequests => await stepContext.BeginDialogAsync(nameof(OpenedRequestsDialog), null, cancellationToken),
+                _ => await stepContext.ReplaceDialogAsync(nameof(MainDialog), null, cancellationToken)
+            };
         }
 
-        public static HeroCard GetChoiceCard()
+        private static HeroCard ChoiceCard()
         {
-            var choiceCard = new HeroCard
+            return new HeroCard
             {
                 Title = "You can create a new request or view opened requests.",
                 Subtitle = "What do you want to do?",
                 Buttons = new List<CardAction>
                 {
                     new CardAction(ActionTypes.ImBack, NewRequest, value: NewRequest),
-                    new CardAction(ActionTypes.ImBack, OpenedRequests, value: OpenedRequests),
-                },
+                    new CardAction(ActionTypes.ImBack, OpenedRequests, value: OpenedRequests)
+                }
             };
-            return choiceCard;
         }
     }
 }
