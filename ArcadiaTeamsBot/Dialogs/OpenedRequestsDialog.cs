@@ -8,6 +8,7 @@
     using AdaptiveCards;
 
     using ArcadiaTeamsBot.CQRS.Abstractions;
+    using ArcadiaTeamsBot.ServiceDesk.Abstractions.DTOs;
 
     using MediatR;
 
@@ -18,7 +19,7 @@
     public class OpenedRequestsDialog : ComponentDialog
     {
         private const string Back = "Back";
-        private const string Username = "vyacheslav.lasukov@arcadia.spb.ru";
+        private const string Username = "ekaterina.kuznetsova@arcadia.spb.ru";
         private readonly IMediator mediator;
 
         public OpenedRequestsDialog(IMediator mediator) : base(nameof(OpenedRequestsDialog))
@@ -40,49 +41,10 @@
             var getOpenedRequestsQuery = new GetCurrentServiceDeskRequestsQuery(Username);
             var openedRequest = await this.mediator.Send(getOpenedRequestsQuery, cancellationToken);
 
-            var actions = openedRequest
-                .Select(request => new AdaptiveShowCardAction
-                {
-                    Title = request.RequestNumber,
-                    Card = new AdaptiveCard
-                    {
-                        Body = new List<AdaptiveElement>
-                        {
-                            new AdaptiveTextBlock { Text = request.Title, Size = AdaptiveTextSize.Large },
-                            new AdaptiveRichTextBlock
-                            {
-                                Inlines = new List<IAdaptiveInline>
-                                {
-                                    new AdaptiveTextRun { Text = "Created: ", Weight = AdaptiveTextWeight.Bolder },
-                                    new AdaptiveTextRun { Text = request.Created.ToLongDateString() }
-                                }
-                            },
-                            new AdaptiveRichTextBlock
-                            {
-                                Inlines = new List<IAdaptiveInline>
-                                {
-                                    new AdaptiveTextRun { Text = "Status: ", Weight = AdaptiveTextWeight.Bolder },
-                                    new AdaptiveTextRun { Text = request.StatusName }
-                                }
-                            },
-                            new AdaptiveRichTextBlock
-                            {
-                                Inlines = new List<IAdaptiveInline>
-                                {
-                                    new AdaptiveTextRun { Text = "Executor: ", Weight = AdaptiveTextWeight.Bolder },
-                                    new AdaptiveTextRun { Text = string.IsNullOrEmpty(request.ExecutorFullName) ? "-" : request.ExecutorFullName }
-                                }
-                            }
-                        }
-                    }
-                })
-                .Cast<AdaptiveAction>()
-                .ToList();
-
+            var actions = openedRequest.Select(GetRequestAction).ToList();
             actions.Add(new AdaptiveSubmitAction { Title = Back, Data = Back });
 
-            await stepContext.Context.SendActivityAsync(MessageFactory.Attachment(OpenedRequestsCard(actions)), cancellationToken);
-
+            await stepContext.Context.SendActivityAsync(MessageFactory.Attachment(GetOpenedRequestsCard(actions)), cancellationToken);
             return await stepContext.PromptAsync(nameof(TextPrompt), new PromptOptions(), cancellationToken);
         }
 
@@ -99,7 +61,7 @@
             }
         }
 
-        private static Attachment OpenedRequestsCard(List<AdaptiveAction> actions)
+        private static Attachment GetOpenedRequestsCard(List<AdaptiveAction> actions)
         {
             var card = new AdaptiveCard
             {
@@ -107,8 +69,8 @@
                 {
                     new AdaptiveTextBlock
                     {
-                        Text = "All your opened requests", 
-                        Weight = AdaptiveTextWeight.Bolder, 
+                        Text = "All your opened requests",
+                        Weight = AdaptiveTextWeight.Bolder,
                         Size = AdaptiveTextSize.Large
                     }
                 },
@@ -120,6 +82,48 @@
                 ContentType = AdaptiveCard.ContentType,
                 Content = card
             };
+        }
+
+        private static AdaptiveAction GetRequestAction(ServiceDeskRequestDTO request)
+        {
+            var executorFullName = string.IsNullOrEmpty(request.ExecutorFullName) ? "-" : request.ExecutorFullName;
+            var action = new AdaptiveShowCardAction
+            {
+                Title = request.RequestNumber,
+                
+                Card = new AdaptiveCard
+                {
+                    Body = new List<AdaptiveElement>
+                    {
+                        new AdaptiveTextBlock { Text = $"{request.RequestNumber}: {request.Title}", Size = AdaptiveTextSize.Large },
+                        new AdaptiveRichTextBlock
+                        {
+                            Inlines = new List<IAdaptiveInline>
+                            {
+                                new AdaptiveTextRun { Text = "Created: ", Weight = AdaptiveTextWeight.Bolder },
+                                new AdaptiveTextRun { Text = request.Created.ToLongDateString() }
+                            }
+                        },
+                        new AdaptiveRichTextBlock
+                        {
+                            Inlines = new List<IAdaptiveInline>
+                            {
+                                new AdaptiveTextRun { Text = "Status: ", Weight = AdaptiveTextWeight.Bolder },
+                                new AdaptiveTextRun { Text = request.StatusName }
+                            }
+                        },
+                        new AdaptiveRichTextBlock
+                        {
+                            Inlines = new List<IAdaptiveInline>
+                            {
+                                new AdaptiveTextRun { Text = "Executor: ", Weight = AdaptiveTextWeight.Bolder },
+                                new AdaptiveTextRun { Text = executorFullName}
+                            }
+                        }
+                    }
+                }
+            };
+            return action;
         }
     }
 }

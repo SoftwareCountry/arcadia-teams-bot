@@ -1,8 +1,5 @@
 namespace ArcadiaTeamsBot
 {
-    using System.Collections.Generic;
-
-    using ArcadiaTeamsBot.CQRS.Abstractions;
     using ArcadiaTeamsBot.CQRS.Handlers;
     using ArcadiaTeamsBot.Dialogs;
     using ArcadiaTeamsBot.Infrastructure;
@@ -10,7 +7,6 @@ namespace ArcadiaTeamsBot
     using ArcadiaTeamsBot.ServiceDesk.Abstractions;
     using ArcadiaTeamsBot.ServiceDesk.Requests;
     using ArcadiaTeamsBot.ServiceDesk.Requests.RequestTypeFactory;
-    using ArcadiaTeamsBot.ServiceDesk.Abstractions.DTOs;
 
     using MediatR;
 
