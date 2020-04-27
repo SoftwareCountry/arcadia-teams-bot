@@ -44,7 +44,7 @@
             var actions = openedRequest.Select(GetRequestAction).ToList();
             actions.Add(new AdaptiveSubmitAction { Title = Back, Data = Back });
 
-            await stepContext.Context.SendActivityAsync(MessageFactory.Attachment(OpenedRequestsCard(actions)), cancellationToken);
+            await stepContext.Context.SendActivityAsync(MessageFactory.Attachment(GetOpenedRequestsCard(actions)), cancellationToken);
             return await stepContext.PromptAsync(nameof(TextPrompt), new PromptOptions(), cancellationToken);
         }
 
@@ -61,7 +61,7 @@
             }
         }
 
-        private static Attachment OpenedRequestsCard(List<AdaptiveAction> actions)
+        private static Attachment GetOpenedRequestsCard(List<AdaptiveAction> actions)
         {
             var card = new AdaptiveCard
             {
@@ -90,6 +90,7 @@
             var action = new AdaptiveShowCardAction
             {
                 Title = request.RequestNumber,
+                
                 Card = new AdaptiveCard
                 {
                     Body = new List<AdaptiveElement>
