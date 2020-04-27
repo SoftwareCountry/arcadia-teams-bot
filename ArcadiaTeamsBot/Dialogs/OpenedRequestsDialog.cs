@@ -82,14 +82,6 @@
                 ContentType = AdaptiveCard.ContentType,
                 Content = card
             };
-
-            Actions.Add(backAction);
-
-            var attachment = OpenedRequestsCard(Actions);
-            var reply = MessageFactory.Attachment(attachment);
-
-            await stepContext.Context.SendActivityAsync(reply, cancellationToken);
-            return await stepContext.PromptAsync(nameof(TextPrompt), new PromptOptions { }, cancellationToken);
         }
 
         private static AdaptiveAction GetRequestAction(ServiceDeskRequestDTO request)
