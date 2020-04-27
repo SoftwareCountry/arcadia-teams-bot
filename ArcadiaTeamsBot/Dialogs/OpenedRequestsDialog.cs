@@ -1,12 +1,14 @@
 ﻿namespace ArcadiaTeamsBot.Dialogs
 {
     using System.Collections.Generic;
+    using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
 
     using AdaptiveCards;
 
     using ArcadiaTeamsBot.CQRS.Abstractions;
+    using ArcadiaTeamsBot.ServiceDesk.Abstractions.DTOs;
 
     using MediatR;
 
@@ -17,7 +19,7 @@
     public class OpenedRequestsDialog : ComponentDialog
     {
         private const string Back = "Back";
-        const string Username = "vyacheslav.lasukov@arcadia.spb.ru";
+        private const string Username = "ekaterina.kuznetsova@arcadia.spb.ru";
         private readonly IMediator mediator;
 
         public OpenedRequestsDialog(IMediator mediator) : base(nameof(OpenedRequestsDialog))
@@ -27,79 +29,100 @@
             this.AddDialog(new WaterfallDialog(nameof(WaterfallDialog), new WaterfallStep[]
             {
                 this.InfoStep,
-                EndStep,
+                this.EndStep
             }));
+
             this.AddDialog(new TextPrompt(nameof(TextPrompt)));
             this.InitialDialogId = nameof(WaterfallDialog);
         }
 
         private async Task<DialogTurnResult> InfoStep(WaterfallStepContext stepContext, CancellationToken cancellationToken)
         {
-            var getRequestsQuery = new GetCurrentServiceDeskRequestsQuery(Username);
-            var openedRequest = await this.mediator.Send(getRequestsQuery, cancellationToken);
+            var getOpenedRequestsQuery = new GetCurrentServiceDeskRequestsQuery(Username);
+            var openedRequest = await this.mediator.Send(getOpenedRequestsQuery, cancellationToken);
 
-            var Actions = new List<AdaptiveAction>();
-            foreach (var request in openedRequest)
+            var actions = openedRequest.Select(GetRequestAction).ToList();
+            actions.Add(new AdaptiveSubmitAction { Title = Back, Data = Back });
+
+            await stepContext.Context.SendActivityAsync(MessageFactory.Attachment(OpenedRequestsCard(actions)), cancellationToken);
+            return await stepContext.PromptAsync(nameof(TextPrompt), new PromptOptions(), cancellationToken);
+        }
+
+        private async Task<DialogTurnResult> EndStep(WaterfallStepContext stepContext, CancellationToken cancellationToken)
+        {
+            switch (stepContext.Result)
             {
-                if (request.ExecutorFullName == "")
-                {
-                    request.ExecutorFullName = "-";
-                }
+                case Back:
+                    await stepContext.EndDialogAsync(null, cancellationToken);
+                    return await stepContext.BeginDialogAsync(nameof(MainDialog), null, cancellationToken);
 
-                var shownCard = new AdaptiveShowCardAction()
+                default:
+                    return await stepContext.ReplaceDialogAsync(nameof(OpenedRequestsDialog), null, cancellationToken);
+            }
+        }
+
+        private static Attachment OpenedRequestsCard(List<AdaptiveAction> actions)
+        {
+            var card = new AdaptiveCard
+            {
+                Body = new List<AdaptiveElement>
                 {
-                    Title = request.RequestNumber,
-                    Card = new AdaptiveCard()
+                    new AdaptiveTextBlock
                     {
-                        Body = new List<AdaptiveElement>()
-                        {
-                            new AdaptiveTextBlock() { Text = request.Title, Weight = AdaptiveTextWeight.Bolder, Size = AdaptiveTextSize.Large },
-                            new AdaptiveTextBlock() { Text = request.StatusName + ": " + request.Created.ToShortDateString(), Weight = AdaptiveTextWeight.Default, Size = AdaptiveTextSize.Medium },
-                            new AdaptiveTextBlock() { Text = "Executor Name: " + request.ExecutorFullName, Weight = AdaptiveTextWeight.Normal, Size = AdaptiveTextSize.Default },
-                        }
-                    },
-                };
-                Actions.Add(shownCard);
-            }
-
-            var backAction = new AdaptiveSubmitAction
-            {
-                Title = Back,
-                Data = Back,
-            };
-            Actions.Add(backAction);
-
-            var attachment = OpenedRequestsCard(Actions);
-            await stepContext.Context.SendActivityAsync(MessageFactory.Attachment(attachment), cancellationToken);
-            return await stepContext.PromptAsync(nameof(TextPrompt), new PromptOptions { }, cancellationToken);
-        }
-
-        private static async Task<DialogTurnResult> EndStep(WaterfallStepContext stepContext, CancellationToken cancellationToken)
-        {
-            if ((string)stepContext.Result == Back)
-            {
-                return await stepContext.BeginDialogAsync(nameof(MainDialog), null, cancellationToken);
-            }
-            return await stepContext.ReplaceDialogAsync(nameof(OpenedRequestsDialog), null, cancellationToken);
-        }
-
-        public static Attachment OpenedRequestsCard(List<AdaptiveAction> actions)
-        {
-            var card = new AdaptiveCard()
-            {
-                Body = new List<AdaptiveElement>()
-                {
-                    new AdaptiveTextBlock() { Text = "All your opened requests", Weight = AdaptiveTextWeight.Bolder, Size = AdaptiveTextSize.Large },
+                        Text = "All your opened requests",
+                        Weight = AdaptiveTextWeight.Bolder,
+                        Size = AdaptiveTextSize.Large
+                    }
                 },
-                Actions = actions,
+                Actions = actions
             };
 
-            var attachment = new Attachment()
+            return new Attachment
             {
                 ContentType = AdaptiveCard.ContentType,
                 Content = card
             };
-            return attachment;
+        }
+
+        private static AdaptiveAction GetRequestAction(ServiceDeskRequestDTO request)
+        {
+            var executorFullName = string.IsNullOrEmpty(request.ExecutorFullName) ? "-" : request.ExecutorFullName;
+            var action = new AdaptiveShowCardAction
+            {
+                Title = request.RequestNumber,
+                Card = new AdaptiveCard
+                {
+                    Body = new List<AdaptiveElement>
+                    {
+                        new AdaptiveTextBlock { Text = $"{request.RequestNumber}: {request.Title}", Size = AdaptiveTextSize.Large },
+                        new AdaptiveRichTextBlock
+                        {
+                            Inlines = new List<IAdaptiveInline>
+                            {
+                                new AdaptiveTextRun { Text = "Created: ", Weight = AdaptiveTextWeight.Bolder },
+                                new AdaptiveTextRun { Text = request.Created.ToLongDateString() }
+                            }
+                        },
+                        new AdaptiveRichTextBlock
+                        {
+                            Inlines = new List<IAdaptiveInline>
+                            {
+                                new AdaptiveTextRun { Text = "Status: ", Weight = AdaptiveTextWeight.Bolder },
+                                new AdaptiveTextRun { Text = request.StatusName }
+                            }
+                        },
+                        new AdaptiveRichTextBlock
+                        {
+                            Inlines = new List<IAdaptiveInline>
+                            {
+                                new AdaptiveTextRun { Text = "Executor: ", Weight = AdaptiveTextWeight.Bolder },
+                                new AdaptiveTextRun { Text = executorFullName}
+                            }
+                        }
+                    }
+                }
+            };
+            return action;
         }
     }
 }
