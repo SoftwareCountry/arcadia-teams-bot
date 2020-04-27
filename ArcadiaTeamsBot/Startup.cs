@@ -41,8 +41,8 @@ namespace ArcadiaTeamsBot
             services.AddSingleton<IBotFrameworkHttpAdapter, BotAdapterWithErrorHandling>();
             services.AddSingleton<IStorage, MemoryStorage>();
             services.AddSingleton<ConversationState>();
-            services.AddSingleton<MainDialog>();
-            services.AddTransient<IBot, Bot<MainDialog>>();
+            services.AddScoped<MainDialog>();
+            services.AddScoped<IBot, Bot<MainDialog>>();
             services.AddSingleton(this.serviceDeskConfiguration);
             services.AddSingleton(this.requestTypesMappingConfiguration);
             services.AddSingleton<IRequestTypeUIFactory, RequestTypeUIFactory>();
