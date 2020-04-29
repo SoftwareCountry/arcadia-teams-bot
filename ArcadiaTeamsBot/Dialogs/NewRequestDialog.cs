@@ -28,15 +28,16 @@
         private const string Cancel = "Cancel";
         private const string NewRequest = "New request";
         private const string ViewOpened = "Opened requests";
-        private const string Username = "vyacheslav.lasukov@arcadia.spb.ru";
-        private static IEnumerable<RequestTypeUIField> requestTypeUIFields;
+        private const string Username = "ekaterina.kuznetsova@arcadia.spb.ru";
+        private IEnumerable<RequestTypeUIField> requestTypeUIFields;
         private readonly IRequestTypeUIFactory requestTypeUIFactory;
         private readonly IMediator mediator;
 
-        public NewRequestDialog(IMediator mediator, IRequestTypeUIFactory requestTypeUIFactory) : base(nameof(NewRequestDialog))
+        public NewRequestDialog(IMediator mediator, IRequestTypeUIFactory requestTypeUIFactory, IEnumerable<RequestTypeUIField> requestTypeUIFields) : base(nameof(NewRequestDialog))
         {
             this.mediator = mediator;
             this.requestTypeUIFactory = requestTypeUIFactory;
+            this.requestTypeUIFields = requestTypeUIFields;
 
             this.AddDialog(new WaterfallDialog(nameof(WaterfallDialog), new WaterfallStep[]
             {
@@ -64,7 +65,7 @@
                 return true;
             }
 
-            var additionalFieldsValues = requestTypeUIFields
+            var additionalFieldsValues = this.requestTypeUIFields
                 .Select(field => formData[field.FieldName].ToString())
                 .ToList();
 
@@ -141,9 +142,9 @@
                 }
             };
 
-            requestTypeUIFields = this.requestTypeUIFactory.CreateRequestTypeUI(requestTypeDTO).RequestTypeUIFields;
+            this.requestTypeUIFields = this.requestTypeUIFactory.CreateRequestTypeUI(requestTypeDTO).RequestTypeUIFields;
 
-            foreach (var field in requestTypeUIFields)
+            foreach (var field in this.requestTypeUIFields)
             {
                 AdaptiveTextBlock textBlock;
                 AdaptiveInput input;
