@@ -6,7 +6,6 @@
     using System.Threading.Tasks;
 
     using ArcadiaTeamsBot.CQRS.Abstractions;
-    using ArcadiaTeamsBot.ServiceDesk.Abstractions.DTOs;
     using ArcadiaTeamsBot.ServiceDesk.Requests.RequestTypeFactory;
 
     using MediatR;
@@ -18,10 +17,9 @@
     public class RequestsTypeDialog : ComponentDialog
     {
         private const string Back = "Back";
-        private static IEnumerable<ServiceDeskRequestTypeDTO> requestTypes;
         private readonly IMediator mediator;
 
-        public RequestsTypeDialog(IMediator mediator, IRequestTypeUIFactory request) : base(nameof(RequestsTypeDialog))
+        public RequestsTypeDialog(IMediator mediator, IRequestTypeUIFactory requestTypeUIFactory) : base(nameof(RequestsTypeDialog))
         {
             this.mediator = mediator;
 
@@ -31,7 +29,7 @@
                 this.EndStep
             }));
 
-            this.AddDialog(new NewRequestDialog(mediator, request));
+            this.AddDialog(new NewRequestDialog(mediator, requestTypeUIFactory));
             this.AddDialog(new TextPrompt(nameof(TextPrompt)));
             this.InitialDialogId = nameof(WaterfallDialog);
         }
@@ -39,7 +37,7 @@
         private async Task<DialogTurnResult> TypeStep(WaterfallStepContext stepContext, CancellationToken cancellationToken)
         {
             var getRequestTypesQuery = new GetServiceDeskRequestTypesQuery();
-            requestTypes = await this.mediator.Send(getRequestTypesQuery, cancellationToken);
+            var requestTypes = await this.mediator.Send(getRequestTypesQuery, cancellationToken);
 
             var buttons = requestTypes
                 .Select(type => new CardAction(ActionTypes.ImBack, type.Title, value: type.Title))
@@ -51,19 +49,20 @@
                 nameof(TextPrompt),
                 new PromptOptions
                 {
-                    Prompt = (Activity)MessageFactory.Attachment(InfoCard(buttons).ToAttachment())
+                    Prompt = (Activity)MessageFactory.Attachment(GetInfoCard(buttons).ToAttachment())
                 },
                 cancellationToken);
         }
 
         private async Task<DialogTurnResult> EndStep(WaterfallStepContext stepContext, CancellationToken cancellationToken)
         {
-            if (requestTypes.Any(type => type.Title == (string)stepContext.Result))
+            var getRequestTypesQuery = new GetServiceDeskRequestTypesQuery();
+            var requestTypes = await this.mediator.Send(getRequestTypesQuery, cancellationToken);
+
+            var type = requestTypes.FirstOrDefault(type => type.Title == (string)stepContext.Result);
+            if (type != null)
             {
-                return await stepContext.BeginDialogAsync(
-                    nameof(NewRequestDialog),
-                    requestTypes.First(type => type.Title == (string)stepContext.Result),
-                    cancellationToken);
+                return await stepContext.BeginDialogAsync(nameof(NewRequestDialog), type, cancellationToken);
             }
 
             switch (stepContext.Result)
@@ -77,7 +76,7 @@
             }
         }
 
-        private static HeroCard InfoCard(IList<CardAction> Buttons)
+        private static HeroCard GetInfoCard(IList<CardAction> Buttons)
         {
             return new HeroCard
             {

@@ -17,9 +17,9 @@
         private const string NewRequest = "New request";
         private const string OpenedRequests = "Opened requests";
 
-        public MainDialog(IMediator mediator, IRequestTypeUIFactory request) : base(nameof(MainDialog))
+        public MainDialog(IMediator mediator, IRequestTypeUIFactory requestTypeUIFactory) : base(nameof(MainDialog))
         {
-            this.AddDialog(new RequestsTypeDialog(mediator, request));
+            this.AddDialog(new RequestsTypeDialog(mediator, requestTypeUIFactory));
             this.AddDialog(new OpenedRequestsDialog(mediator));
 
             this.AddDialog(new WaterfallDialog(nameof(WaterfallDialog), new WaterfallStep[]
