@@ -6,7 +6,6 @@
     using System.Threading.Tasks;
 
     using ArcadiaTeamsBot.CQRS.Abstractions;
-    using ArcadiaTeamsBot.ServiceDesk.Abstractions.DTOs;
 
     using MediatR;
 
@@ -17,7 +16,6 @@
     public class RequestsTypeDialog : ComponentDialog
     {
         private const string Back = "Back";
-        private static IEnumerable<ServiceDeskRequestTypeDTO> requestTypes;
         private readonly IMediator mediator;
 
         public RequestsTypeDialog(IMediator mediator) : base(nameof(RequestsTypeDialog))
@@ -38,7 +36,7 @@
         private async Task<DialogTurnResult> TypeStep(WaterfallStepContext stepContext, CancellationToken cancellationToken)
         {
             var getRequestTypesQuery = new GetServiceDeskRequestTypesQuery();
-            requestTypes = await this.mediator.Send(getRequestTypesQuery, cancellationToken);
+            var requestTypes = await this.mediator.Send(getRequestTypesQuery, cancellationToken);
 
             var buttons = requestTypes
                 .Select(type => new CardAction(ActionTypes.ImBack, type.Title, value: type.Title))
@@ -57,6 +55,9 @@
 
         private async Task<DialogTurnResult> EndStep(WaterfallStepContext stepContext, CancellationToken cancellationToken)
         {
+            var getRequestTypesQuery = new GetServiceDeskRequestTypesQuery();
+            var requestTypes = await this.mediator.Send(getRequestTypesQuery, cancellationToken);
+
             var type = requestTypes.FirstOrDefault(type => type.Title == (string)stepContext.Result);
             if (type != null)
             {
