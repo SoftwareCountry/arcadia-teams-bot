@@ -7,7 +7,6 @@
 
     using ArcadiaTeamsBot.CQRS.Abstractions;
     using ArcadiaTeamsBot.ServiceDesk.Abstractions.DTOs;
-    using ArcadiaTeamsBot.ServiceDesk.Requests.RequestTypeFactory;
 
     using MediatR;
 
@@ -21,7 +20,7 @@
         private static IEnumerable<ServiceDeskRequestTypeDTO> requestTypes;
         private readonly IMediator mediator;
 
-        public RequestsTypeDialog(IMediator mediator, IRequestTypeUIFactory request) : base(nameof(RequestsTypeDialog))
+        public RequestsTypeDialog(IMediator mediator) : base(nameof(RequestsTypeDialog))
         {
             this.mediator = mediator;
 
@@ -31,7 +30,7 @@
                 this.EndStep
             }));
 
-            this.AddDialog(new NewRequestDialog(mediator, request));
+            this.AddDialog(new NewRequestDialog());
             this.AddDialog(new TextPrompt(nameof(TextPrompt)));
             this.InitialDialogId = nameof(WaterfallDialog);
         }
@@ -51,19 +50,17 @@
                 nameof(TextPrompt),
                 new PromptOptions
                 {
-                    Prompt = (Activity)MessageFactory.Attachment(InfoCard(buttons).ToAttachment())
+                    Prompt = (Activity)MessageFactory.Attachment(GetInfoCard(buttons).ToAttachment())
                 },
                 cancellationToken);
         }
 
         private async Task<DialogTurnResult> EndStep(WaterfallStepContext stepContext, CancellationToken cancellationToken)
         {
-            if (requestTypes.Any(type => type.Title == (string)stepContext.Result))
+            var type = requestTypes.FirstOrDefault(type => type.Title == (string)stepContext.Result);
+            if (type != null)
             {
-                return await stepContext.BeginDialogAsync(
-                    nameof(NewRequestDialog),
-                    requestTypes.First(type => type.Title == (string)stepContext.Result),
-                    cancellationToken);
+                return await stepContext.BeginDialogAsync(nameof(NewRequestDialog), type, cancellationToken);
             }
 
             switch (stepContext.Result)
@@ -77,7 +74,7 @@
             }
         }
 
-        private static HeroCard InfoCard(IList<CardAction> Buttons)
+        private static HeroCard GetInfoCard(IList<CardAction> Buttons)
         {
             return new HeroCard
             {
