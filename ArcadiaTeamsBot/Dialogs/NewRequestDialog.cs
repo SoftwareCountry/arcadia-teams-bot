@@ -41,7 +41,7 @@
         {
             if ((string)stepContext.Result == Back)
             {
-                return await stepContext.BeginDialogAsync(nameof(MainDialog), null, cancellationToken);
+                return await stepContext.BeginDialogAsync(nameof(RequestsTypeDialog), null, cancellationToken);
             }
             return await stepContext.ContinueDialogAsync(cancellationToken: cancellationToken);
         }
@@ -50,7 +50,7 @@
         {
             var infoCard = new HeroCard
             {
-                Title = "New In Development",
+                Title = "In Development",
                 Buttons = new List<CardAction>
                 {
                     new CardAction(ActionTypes.ImBack, Back, value: Back),
