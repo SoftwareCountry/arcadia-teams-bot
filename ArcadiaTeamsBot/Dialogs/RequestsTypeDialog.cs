@@ -60,7 +60,7 @@
             var getRequestTypesQuery = new GetServiceDeskRequestTypesQuery();
             var requestTypes = await this.mediator.Send(getRequestTypesQuery, cancellationToken);
 
-            var type = requestTypes.FirstOrDefault(type => type.Title == (string)stepContext.Result);
+            var type = requestTypes.FirstOrDefault(requestTypeDTO => requestTypeDTO.Title == (string)stepContext.Result);
 
             if (type != null)
             {
