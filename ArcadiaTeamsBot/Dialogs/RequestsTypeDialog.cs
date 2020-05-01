@@ -15,7 +15,7 @@
     using Microsoft.Bot.Builder.Dialogs;
     using Microsoft.Bot.Schema;
 
-    public class RequestsTypeDialog : ComponentDialog
+    internal class RequestsTypeDialog : ComponentDialog
     {
         private const string Back = "Back";
         private readonly IMediator mediator;

@@ -16,7 +16,7 @@
     using Microsoft.Bot.Builder.Dialogs;
     using Microsoft.Bot.Schema;
 
-    public class OpenedRequestsDialog : ComponentDialog
+    internal class OpenedRequestsDialog : ComponentDialog
     {
         private const string Back = "Back";
         private const string Username = "ekaterina.kuznetsova@arcadia.spb.ru";

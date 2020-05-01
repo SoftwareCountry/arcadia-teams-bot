@@ -22,7 +22,7 @@
 
     using Newtonsoft.Json.Linq;
 
-    public class NewRequestDialog : ComponentDialog
+    internal class NewRequestDialog : ComponentDialog
     {
         private const string Submit = "Submit";
         private const string Cancel = "Cancel";

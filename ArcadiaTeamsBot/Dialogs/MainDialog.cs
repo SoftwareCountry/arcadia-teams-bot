@@ -13,7 +13,7 @@
     using Microsoft.Bot.Builder.Dialogs;
     using Microsoft.Bot.Schema;
 
-    public class MainDialog : ComponentDialog
+    internal class MainDialog : ComponentDialog
     {
         private const string NewRequest = "New request";
         private const string OpenedRequests = "Opened requests";
