@@ -106,6 +106,8 @@
             var sendRequestsQuery = new CreateNewServiceDeskRequestCommand(newRequest);
             await this.mediator.Send(sendRequestsQuery, cancellationToken);
 
+            await promptContext.Context.SendActivityAsync(MessageFactory.Text("New request created successfully"), cancellationToken);
+
             return true;
         }
 
