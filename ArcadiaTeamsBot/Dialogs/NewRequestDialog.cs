@@ -29,9 +29,9 @@
         private const string NewRequest = "New request";
         private const string ViewOpened = "Opened requests";
         private const string Username = "ekaterina.kuznetsova@arcadia.spb.ru";
-        private IEnumerable<RequestTypeUIField> requestTypeUIFields;
         private readonly IRequestTypeUIFactory requestTypeUIFactory;
         private readonly IMediator mediator;
+        private IEnumerable<RequestTypeUIField> requestTypeUIFields;
 
         public NewRequestDialog(IMediator mediator, IRequestTypeUIFactory requestTypeUIFactory, IEnumerable<RequestTypeUIField> requestTypeUIFields) : base(nameof(NewRequestDialog))
         {
@@ -158,6 +158,7 @@
 
                     case RequestTypeUIFieldType.Select:
                         textBlock = new AdaptiveTextBlock("Choose an item");
+
                         input = new AdaptiveChoiceSetInput
                         {
                             Type = AdaptiveChoiceSetInput.TypeName,

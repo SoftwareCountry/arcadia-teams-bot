@@ -61,6 +61,7 @@
             var requestTypes = await this.mediator.Send(getRequestTypesQuery, cancellationToken);
 
             var type = requestTypes.FirstOrDefault(type => type.Title == (string)stepContext.Result);
+
             if (type != null)
             {
                 return await stepContext.BeginDialogAsync(nameof(NewRequestDialog), type, cancellationToken);
