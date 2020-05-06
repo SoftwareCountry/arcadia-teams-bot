@@ -4,7 +4,6 @@
     using System.Threading;
     using System.Threading.Tasks;
 
-    using ArcadiaTeamsBot.ServiceDesk.Requests.RequestType;
     using ArcadiaTeamsBot.ServiceDesk.Requests.RequestTypeFactory;
 
     using MediatR;
@@ -18,9 +17,9 @@
         private const string NewRequest = "New request";
         private const string OpenedRequests = "Opened requests";
 
-        public MainDialog(IMediator mediator, IRequestTypeUIFactory requestTypeUIFactory, IEnumerable<RequestTypeUIField> requestTypeUIFields) : base(nameof(MainDialog))
+        public MainDialog(IMediator mediator, IRequestTypeUIFactory requestTypeUIFactory) : base(nameof(MainDialog))
         {
-            this.AddDialog(new RequestsTypeDialog(mediator, requestTypeUIFactory, requestTypeUIFields));
+            this.AddDialog(new RequestsTypeDialog(mediator, requestTypeUIFactory));
             this.AddDialog(new OpenedRequestsDialog(mediator));
 
             this.AddDialog(new WaterfallDialog(nameof(WaterfallDialog), new WaterfallStep[]

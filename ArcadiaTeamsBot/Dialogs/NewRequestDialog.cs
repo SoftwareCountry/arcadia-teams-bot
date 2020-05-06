@@ -31,13 +31,11 @@
         private const string Username = "ekaterina.kuznetsova@arcadia.spb.ru";
         private readonly IRequestTypeUIFactory requestTypeUIFactory;
         private readonly IMediator mediator;
-        private IEnumerable<RequestTypeUIField> requestTypeUIFields;
 
-        public NewRequestDialog(IMediator mediator, IRequestTypeUIFactory requestTypeUIFactory, IEnumerable<RequestTypeUIField> requestTypeUIFields) : base(nameof(NewRequestDialog))
+        public NewRequestDialog(IMediator mediator, IRequestTypeUIFactory requestTypeUIFactory) : base(nameof(NewRequestDialog))
         {
             this.mediator = mediator;
             this.requestTypeUIFactory = requestTypeUIFactory;
-            this.requestTypeUIFields = requestTypeUIFields;
 
             this.AddDialog(new WaterfallDialog(nameof(WaterfallDialog), new WaterfallStep[]
             {
@@ -54,7 +52,6 @@
         private async Task<bool> ValidateForm(PromptValidatorContext<string> promptContext, CancellationToken cancellationToken)
         {
             var formData = (JObject)promptContext.Context.Activity.Value;
-
             if (formData == null)
             {
                 return false;
@@ -65,9 +62,14 @@
                 return true;
             }
 
-            var additionalFieldsValues = this.requestTypeUIFields
-                .Select(field => formData[field.FieldName].ToString())
-                .ToList();
+            var additionalFieldsValues = new List<string>();
+            var additionalFieldsData = (formData).Properties()
+                .Where(p => p.Value.Type == JTokenType.String).ToList();
+
+            for (var i = 6; i < additionalFieldsData.Count; i++)
+            {
+                additionalFieldsValues.Add(additionalFieldsData[i].Last.ToString());
+            };
 
             if (string.IsNullOrEmpty(formData["Title"].ToString())
                 || string.IsNullOrEmpty(formData["Description"].ToString())
@@ -107,7 +109,6 @@
             await this.mediator.Send(sendRequestsQuery, cancellationToken);
 
             await promptContext.Context.SendActivityAsync(MessageFactory.Text("New request created successfully"), cancellationToken);
-
             return true;
         }
 
@@ -144,9 +145,9 @@
                 }
             };
 
-            this.requestTypeUIFields = this.requestTypeUIFactory.CreateRequestTypeUI(requestTypeDTO).RequestTypeUIFields;
+            var requestTypeUIFields = this.requestTypeUIFactory.CreateRequestTypeUI(requestTypeDTO).RequestTypeUIFields.ToList();
 
-            foreach (var field in this.requestTypeUIFields)
+            foreach (var field in requestTypeUIFields)
             {
                 AdaptiveTextBlock textBlock;
                 AdaptiveInput input;
@@ -217,7 +218,6 @@
 
             await stepContext.Context.SendActivityAsync(promptOptions.Prompt, cancellationToken);
             promptOptions.Prompt = new Activity(ActivityTypes.Message);
-
             return await stepContext.PromptAsync("askForInput", promptOptions, cancellationToken);
         }
 
