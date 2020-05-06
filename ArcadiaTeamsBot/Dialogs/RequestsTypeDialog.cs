@@ -6,7 +6,6 @@
     using System.Threading.Tasks;
 
     using ArcadiaTeamsBot.CQRS.Abstractions;
-    using ArcadiaTeamsBot.ServiceDesk.Requests.RequestTypeFactory;
 
     using MediatR;
 
@@ -19,17 +18,16 @@
         private const string Back = "Back";
         private readonly IMediator mediator;
 
-        public RequestsTypeDialog(IMediator mediator, IRequestTypeUIFactory requestTypeUIFactory) : base(nameof(RequestsTypeDialog))
+        public RequestsTypeDialog(IMediator mediator, NewRequestDialog newRequestDialog) : base(nameof(RequestsTypeDialog))
         {
             this.mediator = mediator;
-
             this.AddDialog(new WaterfallDialog(nameof(WaterfallDialog), new WaterfallStep[]
             {
                 this.TypeStep,
                 this.EndStep
             }));
 
-            this.AddDialog(new NewRequestDialog(mediator, requestTypeUIFactory));
+            this.AddDialog(newRequestDialog);
             this.AddDialog(new TextPrompt(nameof(TextPrompt)));
             this.InitialDialogId = nameof(WaterfallDialog);
         }

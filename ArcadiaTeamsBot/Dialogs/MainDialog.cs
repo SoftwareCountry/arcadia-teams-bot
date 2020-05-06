@@ -4,10 +4,6 @@
     using System.Threading;
     using System.Threading.Tasks;
 
-    using ArcadiaTeamsBot.ServiceDesk.Requests.RequestTypeFactory;
-
-    using MediatR;
-
     using Microsoft.Bot.Builder;
     using Microsoft.Bot.Builder.Dialogs;
     using Microsoft.Bot.Schema;
@@ -17,17 +13,16 @@
         private const string NewRequest = "New request";
         private const string OpenedRequests = "Opened requests";
 
-        public MainDialog(IMediator mediator, IRequestTypeUIFactory requestTypeUIFactory) : base(nameof(MainDialog))
+        public MainDialog(OpenedRequestsDialog openedRequestDialog, RequestsTypeDialog requestsTypeDialog) : base(nameof(MainDialog))
         {
-            this.AddDialog(new RequestsTypeDialog(mediator, requestTypeUIFactory));
-            this.AddDialog(new OpenedRequestsDialog(mediator));
-
             this.AddDialog(new WaterfallDialog(nameof(WaterfallDialog), new WaterfallStep[]
             {
                 this.ChoiceStep,
                 this.RequestStep
             }));
 
+            this.AddDialog(openedRequestDialog);
+            this.AddDialog(requestsTypeDialog);
             this.AddDialog(new TextPrompt(nameof(TextPrompt)));
             this.InitialDialogId = nameof(WaterfallDialog);
         }
