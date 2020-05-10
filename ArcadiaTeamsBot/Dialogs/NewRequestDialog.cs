@@ -31,9 +31,10 @@
         private const string Button = "Button";
         private const string Title = "Title";
         private const string TypeId = "TypeId";
+        private const string InputValidation = "InputValidation";
         private const string Priority = "Priority";
         private const string Description = "Description";
-        private const string ExecutionDate = "ExecutionDate";
+        private const string ExecutionDate = "Execution Date";
         private const string Username = "ekaterina.kuznetsova@arcadia.spb.ru";
         private readonly IRequestTypeUIFactory requestTypeUIFactory;
         private readonly IMediator mediator;
@@ -52,7 +53,7 @@
 
             this.AddDialog(new TextPrompt(nameof(TextPrompt)));
             this.InitialDialogId = nameof(WaterfallDialog);
-            this.AddDialog(new TextPrompt("askForInput", this.ValidateForm));
+            this.AddDialog(new TextPrompt("InputValidation", this.ValidateForm));
         }
 
         private async Task<bool> ValidateForm(PromptValidatorContext<string> promptContext, CancellationToken cancellationToken)
@@ -115,22 +116,22 @@
             {
                 new AdaptiveTextBlock { Text = requestTypeDTO.Title, Weight = AdaptiveTextWeight.Bolder, Size = AdaptiveTextSize.Large },
 
-                new AdaptiveTextInput { Id = "TypeId", Value = requestTypeDTO.Id.ToString(), IsVisible = false },
+                new AdaptiveTextInput { Id = TypeId, Value = requestTypeDTO.Id.ToString(), IsVisible = false },
 
-                new AdaptiveTextBlock("Title"),
-                new AdaptiveTextInput { Id = "Title", Placeholder = "Title" },
+                new AdaptiveTextBlock(Title),
+                new AdaptiveTextInput { Id = Title, Placeholder = Title},
 
-                new AdaptiveTextBlock("Description"),
-                new AdaptiveTextInput { Id = "Description", Placeholder = "Description" },
+                new AdaptiveTextBlock(Description),
+                new AdaptiveTextInput { Id = Description, Placeholder = Description },
 
-                new AdaptiveTextBlock("Execution date"),
-                new AdaptiveDateInput { Id = "ExecutionDate" },
+                new AdaptiveTextBlock(ExecutionDate),
+                new AdaptiveDateInput { Id = ExecutionDate },
 
-                new AdaptiveTextBlock("Priority"),
+                new AdaptiveTextBlock(Priority),
                 new AdaptiveChoiceSetInput
                 {
                     Value = "2",
-                    Id = "Priority",
+                    Id = Priority,
                     Choices = new List<AdaptiveChoice>
                     {
                         new AdaptiveChoice { Title = "Low", Value = "1" },
@@ -150,12 +151,12 @@
                 switch (field.FieldType)
                 {
                     case RequestTypeUIFieldType.Year:
-                        textBlock = new AdaptiveTextBlock("Enter a year");
-                        input = new AdaptiveNumberInput { Id = field.FieldName, Placeholder = field.FieldName, Min = 1900 };
+                        textBlock = new AdaptiveTextBlock(field.FieldName);
+                        input = new AdaptiveNumberInput { Id = field.FieldName, Placeholder = "Enter a year", Min = 1900 };
                         break;
 
                     case RequestTypeUIFieldType.Select:
-                        textBlock = new AdaptiveTextBlock("Choose an item");
+                        textBlock = new AdaptiveTextBlock(field.FieldName);
 
                         input = new AdaptiveChoiceSetInput
                         {
@@ -172,18 +173,18 @@
                         break;
 
                     case RequestTypeUIFieldType.Number:
-                        textBlock = new AdaptiveTextBlock("Enter a number");
-                        input = new AdaptiveNumberInput { Id = field.FieldName, Placeholder = field.FieldName };
+                        textBlock = new AdaptiveTextBlock(field.FieldName);
+                        input = new AdaptiveNumberInput { Id = field.FieldName, Placeholder = "Enter a number" };
                         break;
 
                     case RequestTypeUIFieldType.String:
-                        textBlock = new AdaptiveTextBlock("Enter a string");
-                        input = new AdaptiveTextInput { Id = field.FieldName, Placeholder = field.FieldName };
+                        textBlock = new AdaptiveTextBlock(field.FieldName);
+                        input = new AdaptiveTextInput { Id = field.FieldName, Placeholder = "Enter a string"};
                         break;
 
                     default:
-                        textBlock = new AdaptiveTextBlock("Unknown field type. Enter a string");
-                        input = new AdaptiveTextInput { Id = field.FieldName, Placeholder = field.FieldName };
+                        textBlock = new AdaptiveTextBlock(field.FieldName);
+                        input = new AdaptiveTextInput { Id = field.FieldName, Placeholder = "Enter a string" };
                         break;
                 }
 
@@ -213,13 +214,13 @@
 
             await stepContext.Context.SendActivityAsync(promptOptions.Prompt, cancellationToken);
             promptOptions.Prompt = new Activity(ActivityTypes.Message);
-            return await stepContext.PromptAsync("askForInput", promptOptions, cancellationToken);
+            return await stepContext.PromptAsync("InputValidation", promptOptions, cancellationToken);
         }
 
         private async Task<DialogTurnResult> ChoiceStep(WaterfallStepContext stepContext, CancellationToken cancellationToken)
         {
             var formData = (JObject)stepContext.Context.Activity.Value;
-            if (formData["Button"].ToString() == Cancel)
+            if (formData[Button].ToString() == Cancel)
             {
                 return await stepContext.BeginDialogAsync(nameof(RequestsTypeDialog), null, cancellationToken);
             }
