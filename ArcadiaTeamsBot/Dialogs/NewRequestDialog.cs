@@ -28,6 +28,12 @@
         private const string Cancel = "Cancel";
         private const string Yes = "Yes";
         private const string No = "No";
+        private const string Button = "Button";
+        private const string Title = "Title";
+        private const string TypeId = "TypeId";
+        private const string Priority = "Priority";
+        private const string Description = "Description";
+        private const string ExecutionDate = "ExecutionDate";
         private const string Username = "ekaterina.kuznetsova@arcadia.spb.ru";
         private readonly IRequestTypeUIFactory requestTypeUIFactory;
         private readonly IMediator mediator;
@@ -57,7 +63,7 @@
                 return false;
             }
 
-            if (formData["Button"].ToString() == Cancel)
+            if (formData[Button].ToString() == Cancel)
             {
                 return true;
             }
@@ -71,9 +77,9 @@
                 additionalFieldsValues.Add(additionalFieldsData[i].Last.ToString());
             };
 
-            if (string.IsNullOrEmpty(formData["Title"].ToString())
-                || string.IsNullOrEmpty(formData["Description"].ToString())
-                || string.IsNullOrEmpty(formData["ExecutionDate"].ToString())
+            if (string.IsNullOrEmpty(formData[Title].ToString())
+                || string.IsNullOrEmpty(formData[Description].ToString())
+                || string.IsNullOrEmpty(formData[ExecutionDate].ToString())
                 || additionalFieldsValues.Any(string.IsNullOrEmpty))
             {
                 return false;
@@ -81,7 +87,7 @@
 
             var createRequestTypeFields =
                 (await this.mediator.Send(new GetServiceDeskRequestTypesQuery(), cancellationToken))
-                .First(requestTypeDTO => requestTypeDTO.Id == Convert.ToInt32(formData["TypeId"].ToString()))
+                .First(requestTypeDTO => requestTypeDTO.Id == Convert.ToInt32(formData[TypeId].ToString()))
                 .RequestTypeFields
                 .Select(requestTypeFieldDTO => new CreateRequestTypeFieldDTO
                 {
@@ -92,15 +98,15 @@
 
             var newRequest = new CreateRequestDTO
             {
-                Title = formData["Title"].ToString(),
-                Description = formData["Description"].ToString(),
-                Priority = Convert.ToInt32(formData["Priority"].ToString()),
-                ExecutionDate = Convert.ToDateTime(formData["ExecutionDate"].ToString()),
+                Title = formData[Title].ToString(),
+                Description = formData[Description].ToString(),
+                Priority = Convert.ToInt32(formData[Priority].ToString()),
+                ExecutionDate = Convert.ToDateTime(formData[ExecutionDate].ToString()),
                 Username = Username,
                 FieldValues = additionalFieldsValues,
                 Type = new CreateRequestTypeDTO
                 {
-                    Id = Convert.ToInt32(formData["TypeId"].ToString()),
+                    Id = Convert.ToInt32(formData[TypeId].ToString()),
                     RequestTypeFields = createRequestTypeFields
                 }
             };
@@ -226,7 +232,7 @@
             var formData = (JObject)stepContext.Context.Activity.Value;
             if (formData["Button"].ToString() == Cancel)
             {
-                return await stepContext.ReplaceDialogAsync(nameof(MainDialog), null, cancellationToken);
+                return await stepContext.BeginDialogAsync(nameof(RequestsTypeDialog), null, cancellationToken);
             }
             return await stepContext.PromptAsync(
                 nameof(TextPrompt),
