@@ -85,17 +85,6 @@
                 return false;
             }
 
-            var createRequestTypeFields =
-                (await this.mediator.Send(new GetServiceDeskRequestTypesQuery(), cancellationToken))
-                .First(requestTypeDTO => requestTypeDTO.Id == Convert.ToInt32(formData[TypeId].ToString()))
-                .RequestTypeFields
-                .Select(requestTypeFieldDTO => new CreateRequestTypeFieldDTO
-                {
-                    Id = requestTypeFieldDTO.Id,
-                    FieldName = requestTypeFieldDTO.FieldName,
-                    IsMandatory = requestTypeFieldDTO.IsMandatory
-                });
-
             var newRequest = new CreateRequestDTO
             {
                 Title = formData[Title].ToString(),
@@ -107,7 +96,7 @@
                 Type = new CreateRequestTypeDTO
                 {
                     Id = Convert.ToInt32(formData[TypeId].ToString()),
-                    RequestTypeFields = createRequestTypeFields
+                    RequestTypeFields = await this.GetRequestTypeField(promptContext, cancellationToken)
                 }
             };
 
@@ -277,6 +266,22 @@
                     new CardAction(ActionTypes.ImBack, No, value: No)
                 }
             };
+        }
+        private async Task<IEnumerable<CreateRequestTypeFieldDTO>> GetRequestTypeField(PromptValidatorContext<string> promptContext, CancellationToken cancellationToken)
+        {
+            var formData = (JObject)promptContext.Context.Activity.Value;
+            var createRequestTypeFields =
+                (await this.mediator.Send(new GetServiceDeskRequestTypesQuery(), cancellationToken))
+                .First(requestTypeDTO => requestTypeDTO.Id == Convert.ToInt32(formData[TypeId].ToString()))
+                .RequestTypeFields
+                .Select(requestTypeFieldDTO => new CreateRequestTypeFieldDTO
+                {
+                    Id = requestTypeFieldDTO.Id,
+                    FieldName = requestTypeFieldDTO.FieldName,
+                    IsMandatory = requestTypeFieldDTO.IsMandatory
+                });
+
+            return createRequestTypeFields;
         }
     }
 }
