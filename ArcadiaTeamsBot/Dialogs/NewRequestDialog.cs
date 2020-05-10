@@ -10,6 +10,7 @@
 
     using ArcadiaTeamsBot.CQRS.Abstractions;
     using ArcadiaTeamsBot.CQRS.Abstractions.Commands;
+    using ArcadiaTeamsBot.ServiceDesk.Abstractions;
     using ArcadiaTeamsBot.ServiceDesk.Abstractions.DTOs;
     using ArcadiaTeamsBot.ServiceDesk.Requests.RequestType;
     using ArcadiaTeamsBot.ServiceDesk.Requests.RequestTypeFactory;
@@ -38,9 +39,11 @@
         private const string Username = "ekaterina.kuznetsova@arcadia.spb.ru";
         private readonly IRequestTypeUIFactory requestTypeUIFactory;
         private readonly IMediator mediator;
+        private readonly IServiceDeskClient serviceDeskClient;
 
-        public NewRequestDialog(IMediator mediator, IRequestTypeUIFactory requestTypeUIFactory) : base(nameof(NewRequestDialog))
+        public NewRequestDialog(IMediator mediator, IRequestTypeUIFactory requestTypeUIFactory, IServiceDeskClient serviceDeskClient) : base(nameof(NewRequestDialog))
         {
+            this.serviceDeskClient = serviceDeskClient;
             this.mediator = mediator;
             this.requestTypeUIFactory = requestTypeUIFactory;
 
@@ -53,7 +56,7 @@
 
             this.AddDialog(new TextPrompt(nameof(TextPrompt)));
             this.InitialDialogId = nameof(WaterfallDialog);
-            this.AddDialog(new TextPrompt("InputValidation", this.ValidateForm));
+            this.AddDialog(new TextPrompt(InputValidation, this.ValidateForm));
         }
 
         private async Task<bool> ValidateForm(PromptValidatorContext<string> promptContext, CancellationToken cancellationToken)
@@ -112,6 +115,9 @@
         {
             var requestTypeDTO = (ServiceDeskRequestTypeDTO)stepContext.Options;
 
+            var priorities = await this.serviceDeskClient.GetPriorities(cancellationToken);
+            var adaptiveChoiceList = priorities.Select(priority => new AdaptiveChoice { Title = priority.Value, Value = priority.Key.ToString() }).ToList();
+            
             var cardBody = new List<AdaptiveElement>
             {
                 new AdaptiveTextBlock { Text = requestTypeDTO.Title, Weight = AdaptiveTextWeight.Bolder, Size = AdaptiveTextSize.Large },
@@ -130,14 +136,8 @@
                 new AdaptiveTextBlock(Priority),
                 new AdaptiveChoiceSetInput
                 {
-                    Value = "2",
                     Id = Priority,
-                    Choices = new List<AdaptiveChoice>
-                    {
-                        new AdaptiveChoice { Title = "Low", Value = "1" },
-                        new AdaptiveChoice { Title = "Default", Value = "2" },
-                        new AdaptiveChoice { Title = "High", Value = "3" }
-                    }
+                    Choices = adaptiveChoiceList
                 }
             };
 
@@ -214,7 +214,7 @@
 
             await stepContext.Context.SendActivityAsync(promptOptions.Prompt, cancellationToken);
             promptOptions.Prompt = new Activity(ActivityTypes.Message);
-            return await stepContext.PromptAsync("InputValidation", promptOptions, cancellationToken);
+            return await stepContext.PromptAsync(InputValidation, promptOptions, cancellationToken);
         }
 
         private async Task<DialogTurnResult> ChoiceStep(WaterfallStepContext stepContext, CancellationToken cancellationToken)
