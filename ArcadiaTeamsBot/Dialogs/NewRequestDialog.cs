@@ -223,6 +223,11 @@
 
         private async Task<DialogTurnResult> ChoiceStep(WaterfallStepContext stepContext, CancellationToken cancellationToken)
         {
+            var formData = (JObject)stepContext.Context.Activity.Value;
+            if (formData["Button"].ToString() == Cancel)
+            {
+                return await stepContext.ReplaceDialogAsync(nameof(MainDialog), null, cancellationToken);
+            }
             return await stepContext.PromptAsync(
                 nameof(TextPrompt),
                 new PromptOptions
@@ -259,7 +264,7 @@
             return new HeroCard
             {
                 Title = "Do you want to create one more request?",
-                
+
                 Buttons = new List<CardAction>
                 {
                     new CardAction(ActionTypes.ImBack, Yes, value: Yes),
