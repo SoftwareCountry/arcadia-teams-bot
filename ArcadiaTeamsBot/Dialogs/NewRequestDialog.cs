@@ -26,8 +26,8 @@
     {
         private const string Submit = "Submit";
         private const string Cancel = "Cancel";
-        private const string NewRequest = "New request";
-        private const string ViewOpened = "Opened requests";
+        private const string Yes = "Yes";
+        private const string No = "No";
         private const string Username = "ekaterina.kuznetsova@arcadia.spb.ru";
         private readonly IRequestTypeUIFactory requestTypeUIFactory;
         private readonly IMediator mediator;
@@ -227,7 +227,7 @@
                 nameof(TextPrompt),
                 new PromptOptions
                 {
-                    Prompt = (Activity)MessageFactory.Attachment(ChoiceCard().ToAttachment())
+                    Prompt = (Activity)MessageFactory.Attachment(GetChoiceCard().ToAttachment())
                 },
                 cancellationToken);
         }
@@ -236,8 +236,7 @@
         {
             return stepContext.Result switch
             {
-                NewRequest => await stepContext.BeginDialogAsync(nameof(RequestsTypeDialog), null, cancellationToken),
-                ViewOpened => await stepContext.BeginDialogAsync(nameof(OpenedRequestsDialog), null, cancellationToken),
+                Yes => await stepContext.BeginDialogAsync(nameof(RequestsTypeDialog), null, cancellationToken),
                 _ => await stepContext.ReplaceDialogAsync(nameof(MainDialog), null, cancellationToken)
             };
         }
@@ -255,16 +254,16 @@
             };
         }
 
-        private static HeroCard ChoiceCard()
+        private static HeroCard GetChoiceCard()
         {
             return new HeroCard
             {
-                Title = "You can create a new request or view opened requests.",
-                Subtitle = "What do you want to do?",
+                Title = "Do you want to create one more request?",
+                
                 Buttons = new List<CardAction>
                 {
-                    new CardAction(ActionTypes.ImBack, NewRequest, value: NewRequest),
-                    new CardAction(ActionTypes.ImBack, ViewOpened, value: ViewOpened)
+                    new CardAction(ActionTypes.ImBack, Yes, value: Yes),
+                    new CardAction(ActionTypes.ImBack, No, value: No)
                 }
             };
         }
