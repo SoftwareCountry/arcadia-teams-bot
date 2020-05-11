@@ -124,16 +124,16 @@
 
                 new AdaptiveTextInput { Id = TypeId, Value = requestTypeDTO.Id.ToString(), IsVisible = false },
 
-                new AdaptiveTextBlock(Title),
-                new AdaptiveTextInput { Id = Title, Placeholder = Title},
+                new AdaptiveTextBlock("Title"),
+                new AdaptiveTextInput { Id = Title, Placeholder = "Title"},
 
-                new AdaptiveTextBlock(Description),
-                new AdaptiveTextInput { Id = Description, Placeholder = Description },
+                new AdaptiveTextBlock("Description"),
+                new AdaptiveTextInput { Id = Description, Placeholder = "Description" },
 
-                new AdaptiveTextBlock(ExecutionDate),
+                new AdaptiveTextBlock("Execution Date"),
                 new AdaptiveDateInput { Id = ExecutionDate },
 
-                new AdaptiveTextBlock(Priority),
+                new AdaptiveTextBlock("Priority"),
                 new AdaptiveChoiceSetInput
                 {
                     Id = Priority,
@@ -208,7 +208,7 @@
 
             var promptOptions = new PromptOptions
             {
-                Prompt = (Activity)MessageFactory.Attachment(InputFormCard(cardBody, Actions)),
+                Prompt = (Activity)MessageFactory.Attachment(GetInputFormCard(cardBody, Actions)),
                 RetryPrompt = MessageFactory.Text("Not all fields are filled. Repeat")
             };
 
@@ -242,7 +242,7 @@
             };
         }
 
-        private static Attachment InputFormCard(List<AdaptiveElement> body, List<AdaptiveAction> actions)
+        private static Attachment GetInputFormCard(List<AdaptiveElement> body, List<AdaptiveAction> actions)
         {
             return new Attachment
             {
