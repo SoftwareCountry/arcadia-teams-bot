@@ -29,7 +29,6 @@
         private const string Cancel = "Cancel";
         private const string Yes = "Yes";
         private const string No = "No";
-        private const string Button = "Button";
         private const string Title = "Title";
         private const string TypeId = "TypeId";
         private const string InputValidation = "InputValidation";
@@ -37,9 +36,11 @@
         private const string Description = "Description";
         private const string ExecutionDate = "Execution Date";
         private const string Username = "ekaterina.kuznetsova@arcadia.spb.ru";
+
         private readonly IRequestTypeUIFactory requestTypeUIFactory;
         private readonly IMediator mediator;
         private readonly IServiceDeskClient serviceDeskClient;
+        private interface IButtonData { string Button { get; set; } }
 
         public NewRequestDialog(IMediator mediator, IRequestTypeUIFactory requestTypeUIFactory, IServiceDeskClient serviceDeskClient) : base(nameof(NewRequestDialog))
         {
@@ -67,7 +68,7 @@
                 return false;
             }
 
-            if (formData[Button].ToString() == Cancel)
+            if (formData[nameof(IButtonData.Button)].ToString() == Cancel)
             {
                 return true;
             }
@@ -117,7 +118,7 @@
 
             var priorities = await this.serviceDeskClient.GetPriorities(cancellationToken);
             var adaptiveChoiceList = priorities.Select(priority => new AdaptiveChoice { Title = priority.Value, Value = priority.Key.ToString() }).ToList();
-            
+
             var cardBody = new List<AdaptiveElement>
             {
                 new AdaptiveTextBlock { Text = requestTypeDTO.Title, Weight = AdaptiveTextWeight.Bolder, Size = AdaptiveTextSize.Large },
@@ -179,7 +180,7 @@
 
                     case RequestTypeUIFieldType.String:
                         textBlock = new AdaptiveTextBlock(field.FieldName);
-                        input = new AdaptiveTextInput { Id = field.FieldName, Placeholder = "Enter a string"};
+                        input = new AdaptiveTextInput { Id = field.FieldName, Placeholder = "Enter a string" };
                         break;
 
                     default:
@@ -197,12 +198,12 @@
                 new AdaptiveSubmitAction
                 {
                     Title = Submit,
-                    Data = new { Button = Submit }
+                    Data = new Dictionary<string, string> { {nameof(IButtonData.Button), Submit} }
                 },
                 new AdaptiveSubmitAction
                 {
                     Title = Cancel,
-                    Data = new { Button = Cancel }
+                    Data = new Dictionary<string, string> { {nameof(IButtonData.Button), Cancel} }
                 }
             };
 
@@ -220,7 +221,7 @@
         private async Task<DialogTurnResult> ChoiceStep(WaterfallStepContext stepContext, CancellationToken cancellationToken)
         {
             var formData = (JObject)stepContext.Context.Activity.Value;
-            if (formData[Button].ToString() == Cancel)
+            if (formData[nameof(IButtonData.Button)].ToString() == Cancel)
             {
                 return await stepContext.BeginDialogAsync(nameof(RequestsTypeDialog), null, cancellationToken);
             }
