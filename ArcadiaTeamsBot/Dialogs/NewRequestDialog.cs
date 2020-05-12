@@ -29,18 +29,18 @@
         private const string Cancel = "Cancel";
         private const string Yes = "Yes";
         private const string No = "No";
-        private const string Title = "Title";
-        private const string TypeId = "TypeId";
+        internal const string Title = "Title";
+        internal const string TypeId = "TypeId";
         private const string InputValidation = "InputValidation";
-        private const string Priority = "Priority";
-        private const string Description = "Description";
-        private const string ExecutionDate = "Execution Date";
+        internal const string Priority = "Priority";
+        internal const string Description = "Description";
+        internal const string ExecutionDate = "Execution Date";
         private const string Username = "ekaterina.kuznetsova@arcadia.spb.ru";
 
         private readonly IRequestTypeUIFactory requestTypeUIFactory;
         private readonly IMediator mediator;
         private readonly IServiceDeskClient serviceDeskClient;
-        private interface IButtonData { string Button { get; set; } }
+        public interface IButtonData { string Button { get; set; } }
 
         public NewRequestDialog(IMediator mediator, IRequestTypeUIFactory requestTypeUIFactory, IServiceDeskClient serviceDeskClient) : base(nameof(NewRequestDialog))
         {
@@ -62,45 +62,33 @@
 
         private async Task<bool> ValidateForm(PromptValidatorContext<string> promptContext, CancellationToken cancellationToken)
         {
-            var formData = (JObject)promptContext.Context.Activity.Value;
-            if (formData == null)
-            {
-                return false;
-            }
+            var formData = new FromData();
+            formData.GetFormData(promptContext.Context, cancellationToken);
 
-            if (formData[nameof(IButtonData.Button)].ToString() == Cancel)
+            if (formData.Button == Cancel)
             {
                 return true;
             }
 
-            var additionalFieldsValues = new List<string>();
-            var additionalFieldsData = (formData).Properties()
-                .Where(p => p.Value.Type == JTokenType.String).ToList();
-
-            for (var i = 6; i < additionalFieldsData.Count; i++)
-            {
-                additionalFieldsValues.Add(additionalFieldsData[i].Last.ToString());
-            };
-
-            if (string.IsNullOrEmpty(formData[Title].ToString())
-                || string.IsNullOrEmpty(formData[Description].ToString())
-                || string.IsNullOrEmpty(formData[ExecutionDate].ToString())
-                || additionalFieldsValues.Any(string.IsNullOrEmpty))
+            if (string.IsNullOrEmpty(formData.Title)
+                || string.IsNullOrEmpty(formData.Description)
+                || string.IsNullOrEmpty(formData.ExecutionDate.ToString())
+                || formData.AdditionalFields.Any(string.IsNullOrEmpty))
             {
                 return false;
             }
 
             var newRequest = new CreateRequestDTO
             {
-                Title = formData[Title].ToString(),
-                Description = formData[Description].ToString(),
-                Priority = Convert.ToInt32(formData[Priority].ToString()),
-                ExecutionDate = Convert.ToDateTime(formData[ExecutionDate].ToString()),
+                Title = formData.Title,
+                Description = formData.Description,
+                Priority = formData.Priority,
+                ExecutionDate = formData.ExecutionDate,
                 Username = Username,
-                FieldValues = additionalFieldsValues,
+                FieldValues = formData.AdditionalFields,
                 Type = new CreateRequestTypeDTO
                 {
-                    Id = Convert.ToInt32(formData[TypeId].ToString()),
+                    Id = Convert.ToInt32(formData.TypeId),
                     RequestTypeFields = await this.GetRequestTypeField(promptContext, cancellationToken)
                 }
             };
@@ -137,6 +125,7 @@
                 new AdaptiveTextBlock("Priority"),
                 new AdaptiveChoiceSetInput
                 {
+                    Value = "2",
                     Id = Priority,
                     Choices = adaptiveChoiceList
                 }
@@ -210,7 +199,7 @@
             var promptOptions = new PromptOptions
             {
                 Prompt = (Activity)MessageFactory.Attachment(GetInputFormCard(cardBody, Actions)),
-                RetryPrompt = MessageFactory.Text("Not all fields are filled. Repeat")
+                RetryPrompt = MessageFactory.Text("Not all fields are filled. Repeat please.")
             };
 
             await stepContext.Context.SendActivityAsync(promptOptions.Prompt, cancellationToken);
@@ -220,8 +209,10 @@
 
         private async Task<DialogTurnResult> ChoiceStep(WaterfallStepContext stepContext, CancellationToken cancellationToken)
         {
-            var formData = (JObject)stepContext.Context.Activity.Value;
-            if (formData[nameof(IButtonData.Button)].ToString() == Cancel)
+            var formData = new FromData();
+            formData.GetFormData(stepContext.Context, cancellationToken);
+
+            if (formData.Button == Cancel)
             {
                 return await stepContext.BeginDialogAsync(nameof(RequestsTypeDialog), null, cancellationToken);
             }
@@ -271,10 +262,12 @@
         }
         private async Task<IEnumerable<CreateRequestTypeFieldDTO>> GetRequestTypeField(PromptValidatorContext<string> promptContext, CancellationToken cancellationToken)
         {
-            var formData = (JObject)promptContext.Context.Activity.Value;
+            var formData = new FromData();
+            formData.GetFormData(promptContext.Context, cancellationToken);
+
             var createRequestTypeFields =
                 (await this.mediator.Send(new GetServiceDeskRequestTypesQuery(), cancellationToken))
-                .First(requestTypeDTO => requestTypeDTO.Id == Convert.ToInt32(formData[TypeId].ToString()))
+                .First(requestTypeDTO => requestTypeDTO.Id == Convert.ToInt32(formData.TypeId))
                 .RequestTypeFields
                 .Select(requestTypeFieldDTO => new CreateRequestTypeFieldDTO
                 {
@@ -284,6 +277,41 @@
                 });
 
             return createRequestTypeFields;
+        }
+    }
+
+    internal class FromData
+    {
+        internal string Title;
+        internal string Description;
+        internal string Button;
+        internal int TypeId;
+        internal int? Priority;
+        internal DateTime? ExecutionDate;
+        internal List<string> AdditionalFields;
+
+        public  void GetFormData(ITurnContext context, CancellationToken cancellationToken)
+        {
+            var formData = (JObject)context.Activity.Value;
+
+            if (formData != null)
+            {
+                this.Title = formData[NewRequestDialog.Title].ToString();
+                this.Description = formData[NewRequestDialog.Description].ToString();
+                this.Button = formData[nameof(NewRequestDialog.IButtonData.Button)].ToString();
+                this.Priority = Convert.ToInt32(formData[NewRequestDialog.Priority].ToString());
+                this.TypeId = Convert.ToInt32(formData[NewRequestDialog.TypeId].ToString());
+                this.ExecutionDate = formData[NewRequestDialog.ExecutionDate].ToString() == "" ? (DateTime?)null : Convert.ToDateTime(formData[NewRequestDialog.ExecutionDate].ToString());
+
+                var additionalFieldsValues = new List<string>();
+                var additionalFieldsData = (formData).Properties()
+                    .Where(p => p.Value.Type == JTokenType.String).ToList();
+                for (var i = 6; i < additionalFieldsData.Count; i++)
+                {
+                    additionalFieldsValues.Add(additionalFieldsData[i].Last.ToString());
+                };
+                this.AdditionalFields = additionalFieldsValues;
+            }
         }
     }
 }
