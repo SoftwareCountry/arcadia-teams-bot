@@ -13,22 +13,21 @@
     using Microsoft.Bot.Builder.Dialogs;
     using Microsoft.Bot.Schema;
 
-    public class RequestsTypeDialog : ComponentDialog
+    internal class RequestsTypeDialog : ComponentDialog
     {
         private const string Back = "Back";
         private readonly IMediator mediator;
 
-        public RequestsTypeDialog(IMediator mediator) : base(nameof(RequestsTypeDialog))
+        public RequestsTypeDialog(IMediator mediator, NewRequestDialog newRequestDialog) : base(nameof(RequestsTypeDialog))
         {
             this.mediator = mediator;
-
             this.AddDialog(new WaterfallDialog(nameof(WaterfallDialog), new WaterfallStep[]
             {
                 this.TypeStep,
                 this.EndStep
             }));
 
-            this.AddDialog(new NewRequestDialog());
+            this.AddDialog(newRequestDialog);
             this.AddDialog(new TextPrompt(nameof(TextPrompt)));
             this.InitialDialogId = nameof(WaterfallDialog);
         }
@@ -58,7 +57,8 @@
             var getRequestTypesQuery = new GetServiceDeskRequestTypesQuery();
             var requestTypes = await this.mediator.Send(getRequestTypesQuery, cancellationToken);
 
-            var type = requestTypes.FirstOrDefault(type => type.Title == (string)stepContext.Result);
+            var type = requestTypes.FirstOrDefault(requestTypeDTO => requestTypeDTO.Title == (string)stepContext.Result);
+
             if (type != null)
             {
                 return await stepContext.BeginDialogAsync(nameof(NewRequestDialog), type, cancellationToken);

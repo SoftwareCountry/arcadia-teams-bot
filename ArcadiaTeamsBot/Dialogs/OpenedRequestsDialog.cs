@@ -16,7 +16,7 @@
     using Microsoft.Bot.Builder.Dialogs;
     using Microsoft.Bot.Schema;
 
-    public class OpenedRequestsDialog : ComponentDialog
+    internal class OpenedRequestsDialog : ComponentDialog
     {
         private const string Back = "Back";
         private const string Username = "ekaterina.kuznetsova@arcadia.spb.ru";
@@ -87,10 +87,11 @@
         private static AdaptiveAction GetRequestAction(ServiceDeskRequestDTO request)
         {
             var executorFullName = string.IsNullOrEmpty(request.ExecutorFullName) ? "-" : request.ExecutorFullName;
-            var action = new AdaptiveShowCardAction
+
+            return new AdaptiveShowCardAction
             {
                 Title = request.RequestNumber,
-                
+
                 Card = new AdaptiveCard
                 {
                     Body = new List<AdaptiveElement>
@@ -117,13 +118,12 @@
                             Inlines = new List<IAdaptiveInline>
                             {
                                 new AdaptiveTextRun { Text = "Executor: ", Weight = AdaptiveTextWeight.Bolder },
-                                new AdaptiveTextRun { Text = executorFullName}
+                                new AdaptiveTextRun { Text = executorFullName }
                             }
                         }
                     }
                 }
             };
-            return action;
         }
     }
 }

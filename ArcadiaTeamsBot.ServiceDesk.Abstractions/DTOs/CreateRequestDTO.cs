@@ -11,7 +11,7 @@
 
         public CreateRequestTypeDTO Type { get; set; }
 
-        public int? PriorityId { get; set; }
+        public int? Priority { get; set; }
 
         public DateTime? ExecutionDate { get; set; }
 
